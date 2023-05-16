@@ -148,7 +148,7 @@ function addLegs(obj, x, y, z) {
     mesh.position.set(x-8.5, y-9, z);
     legs.add(mesh);
 
-    addFeet(legs, x, y-33, z-1);
+    addFeet(legs, x, y-30, z-1);
 
     obj.add(legs);
 }
@@ -160,11 +160,11 @@ function addFeet(obj, x, y, z) {
 
     geometry = new THREE.CubeGeometry(12, 6, 8);
     mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(x+3, y, z);
+    mesh.position.set(x+3, y-3, z);
     feet.add(mesh);
     geometry = new THREE.CubeGeometry(12, 6, 8);
     mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(x-3, y, z);
+    mesh.position.set(x-3, y-3, z);
     feet.add(mesh);
 
     obj.add(feet);
