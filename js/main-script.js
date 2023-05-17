@@ -14,6 +14,14 @@ var yellow = 0xdbb809;
 var gray = 0x808080;
 var black = 0x202020;
 
+materials = {
+    black: new THREE.MeshBasicMaterial({ color: black, wireframe: false }),
+    red: new THREE.MeshBasicMaterial({ color: red, wireframe: false }),
+    yellow: new THREE.MeshBasicMaterial({ color: yellow, wireframe: false }),
+    gray: new THREE.MeshBasicMaterial({ color: gray, wireframe: false }),
+    blue: new THREE.MeshBasicMaterial({ color: blue, wireframe: false }),
+};
+
 const SCENE_WIDTH = 250;
 const SCENE_HEIGHT = 100;
 const SCENE_DEPTH = SCENE_WIDTH;
@@ -108,14 +116,6 @@ function createRobot(x, y, z) {
     'use strict';
 
     var robot = new THREE.Object3D();
-
-    materials = {
-        black: new THREE.MeshBasicMaterial({ color: black, wireframe: false }),
-        red: new THREE.MeshBasicMaterial({ color: red, wireframe: false }),
-        yellow: new THREE.MeshBasicMaterial({ color: yellow, wireframe: false }),
-        gray: new THREE.MeshBasicMaterial({ color: gray, wireframe: false }),
-        blue: new THREE.MeshBasicMaterial({ color: blue, wireframe: false }),
-    };
 
     addBody(robot, x, y, z);
     addLegs(robot, x, y-18, z+4);
@@ -271,7 +271,7 @@ function addLeftArm(obj, x, y, z) {
     mesh = new THREE.Mesh(geometry, materials.blue);
     mesh.position.set(x, y-12, z-6);
     leftArm.add(mesh);
-    // Exhaus
+    // Exhaust
     geometry = new THREE.CylinderGeometry(1, 1, 8);
     mesh = new THREE.Mesh(geometry, materials.gray);
     mesh.position.set(x+4, y-2, z);
