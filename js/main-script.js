@@ -2,9 +2,17 @@
 /* GLOBAL VARIABLES */
 //////////////////////
 
+var cameras = []; 
 var camera, scene, renderer;
 
-var geometry, material, mesh;
+var geometry, materials, mesh;
+
+var cyan = 0xe3e5e6;
+var blue = 0x1332a1;
+var red = 0xeb1e1e
+var yellow = 0xdbb809;
+var gray = 0x808080;
+var black = 0x202020;
 
 const SCENE_WIDTH = 250;
 const SCENE_HEIGHT = 100;
@@ -26,7 +34,7 @@ function createScene() {
 
     scene = new THREE.Scene();
 
-    scene.background = new THREE.Color(0xbae5f2);
+    scene.background = new THREE.Color(cyan);
 
     scene.add(new THREE.AxisHelper(10));
 
@@ -37,26 +45,30 @@ function createScene() {
 //////////////////////
 function createCameras() {
     'use strict';
+    var window_ratio = window.innerWidth / window.innerHeight;
+    
     // Front view
     var front_camera = new THREE.OrthographicCamera(-SCENE_WIDTH/2, SCENE_WIDTH/2, SCENE_HEIGHT/2, -SCENE_HEIGHT/2, SCENE_DEPTH/1000, SCENE_DEPTH);
-    front_camera.position.set(0, 0, SCENE_DEPTH/2);
+    front_camera.position.set(0, 0, -SCENE_DEPTH/2);
     front_camera.lookAt(scene.position);
     scene.add(front_camera);
-    //camera = front_camera;
+    cameras.push(front_camera);
 
     // Lateral view
     var lateral_camera = new THREE.OrthographicCamera(-SCENE_DEPTH/2, SCENE_DEPTH/2, SCENE_HEIGHT/2, -SCENE_HEIGHT/2, SCENE_WIDTH/1000, SCENE_WIDTH);
-    lateral_camera.position.set(SCENE_WIDTH/2, 0, 0);
+    lateral_camera.position.set(-SCENE_WIDTH/2, 0, 0);
     lateral_camera.lookAt(scene.position);
     scene.add(lateral_camera);
-    //camera = lateral_camera;
+    cameras.push(lateral_camera);
 
     // Top view
     var top_camera = new THREE.OrthographicCamera(-SCENE_WIDTH/2, SCENE_WIDTH/2, SCENE_DEPTH/2, -SCENE_DEPTH/2, SCENE_HEIGHT/1000, SCENE_HEIGHT);
     top_camera.position.set(0, SCENE_HEIGHT/2, 0);
 
     top_camera.lookAt(scene.position);
+    top_camera.rotateZ(deg_to_rad(180));
     scene.add(top_camera);
+    cameras.push(top_camera);
 
     /////////// ISOMETRIC VIEWS ///////////
     const VERTICAL_ROTATION = rad_to_deg(Math.atan(Math.sin(Math.PI/4)));
@@ -74,14 +86,14 @@ function createCameras() {
     iso_orth_camera.position.set(vec.x, vec.y, vec.z);
     iso_orth_camera.lookAt(scene.position);
     scene.add(iso_orth_camera);
-    //camera = iso_orth_camera;
+    cameras.push(iso_orth_camera);
 
     // Perspective isometric view
-    var iso_persp_camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
+    var iso_persp_camera = new THREE.PerspectiveCamera(60, window_ratio, 1, 1000);
     iso_persp_camera.position.set(vec.x, vec.y, vec.z);
     iso_persp_camera.lookAt(scene.position);
     scene.add(iso_persp_camera);
-    camera = iso_persp_camera;
+    cameras.push(iso_persp_camera);
 }
 
 /////////////////////
@@ -97,10 +109,16 @@ function createRobot(x, y, z) {
 
     var robot = new THREE.Object3D();
 
-    material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
+    materials = {
+        black: new THREE.MeshBasicMaterial({ color: black, wireframe: false }),
+        red: new THREE.MeshBasicMaterial({ color: red, wireframe: false }),
+        yellow: new THREE.MeshBasicMaterial({ color: yellow, wireframe: false }),
+        gray: new THREE.MeshBasicMaterial({ color: gray, wireframe: false }),
+        blue: new THREE.MeshBasicMaterial({ color: blue, wireframe: false }),
+    };
 
     addBody(robot, x, y, z);
-    addLegs(robot, x, y-18, z-5);
+    addLegs(robot, x, y-18, z+4);
     addLeftArm(robot, x+15, y, z+5);
     addRightArm(robot, x-15, y, z+5);
     addHead(robot, x, y+6, z);
@@ -110,18 +128,22 @@ function createRobot(x, y, z) {
 
 function addBody(obj, x, y, z) {
     'use strict';
-
+    // Chest
     geometry = new THREE.BoxGeometry(24, 12, 16);
-    mesh = new THREE.Mesh(geometry, material);
+    mesh = new THREE.Mesh(geometry, materials.red);
     mesh.position.set(x, y, z);
     obj.add(mesh);
+
+    // Abdomen
     geometry = new THREE.BoxGeometry(12, 16, 18);
-    mesh = new THREE.Mesh(geometry, material);
+    mesh = new THREE.Mesh(geometry, materials.red);
     mesh.position.set(x, y-10, z-1);
     obj.add(mesh);
-    geometry = new THREE.BoxGeometry(24, 4, 2);
-    mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(x, y-15, z-11);
+
+    // Plate
+    geometry = new THREE.BoxGeometry(24, 4, 1);
+    mesh = new THREE.Mesh(geometry, materials.gray);
+    mesh.position.set(x, y-15, z-10.5);
     obj.add(mesh);
     addWheel(obj, x+8, y-15, z-2, 0, 90, 90);
     addWheel(obj, x-8, y-15, z-2, 0, 90, 90);
@@ -129,12 +151,11 @@ function addBody(obj, x, y, z) {
 
 function addWheel(obj, x, y, z, rotX, rotY, rotZ) {
     'use strict';
-
     geometry = new THREE.CylinderGeometry(4, 4, 4);
     geometry.rotateX(deg_to_rad(rotX));
     geometry.rotateY(deg_to_rad(rotY));
     geometry.rotateZ(deg_to_rad(rotZ));
-    mesh = new THREE.Mesh(geometry, material);
+    mesh = new THREE.Mesh(geometry, materials.black);
     mesh.position.set(x, y, z);
     obj.add(mesh);
 }
@@ -144,26 +165,29 @@ function addHead(obj, x, y, z) {
 
     var head = new THREE.Object3D();
 
+    // Head
     geometry = new THREE.BoxGeometry(6, 6, 6);
-    mesh = new THREE.Mesh(geometry, material);
+    mesh = new THREE.Mesh(geometry, materials.blue);
     mesh.position.set(x, y+3, z);
     head.add(mesh);
 
+    // Eyes
     geometry = new THREE.BoxGeometry(1, 1, 1);
-    mesh = new THREE.Mesh(geometry, material);
+    mesh = new THREE.Mesh(geometry, materials.yellow);
     mesh.position.set(x+2, y+4, z-3);
     head.add(mesh);
     geometry = new THREE.BoxGeometry(1, 1, 1);
-    mesh = new THREE.Mesh(geometry, material);
+    mesh = new THREE.Mesh(geometry, materials.yellow);
     mesh.position.set(x-2, y+4, z-3);
     head.add(mesh);
 
+    // Antennae
     geometry = new THREE.CylinderGeometry(0.5, 0.5, 3);
-    mesh = new THREE.Mesh(geometry, material);
+    mesh = new THREE.Mesh(geometry, materials.black);
     mesh.position.set(x+3.5, y+4, z);
     head.add(mesh);
     geometry = new THREE.CylinderGeometry(0.5, 0.5, 3);
-    mesh = new THREE.Mesh(geometry, material);
+    mesh = new THREE.Mesh(geometry, materials.black);
     mesh.position.set(x-3.5, y+4, z);
     head.add(mesh);
     
@@ -180,35 +204,36 @@ function addLegs(obj, x, y, z) {
     addWheel(legs, x-8, y-17, z-1, 0, 90, 90);
     addWheel(legs, x-8, y-26, z-1, 0, 90, 90);
 
+    // Top joint
     geometry = new THREE.BoxGeometry(4, 6, 4);
-    mesh = new THREE.Mesh(geometry, material);
+    mesh = new THREE.Mesh(geometry, materials.gray);
     mesh.position.set(x+3, y-3, z);
     legs.add(mesh);
     geometry = new THREE.BoxGeometry(4, 6, 4);
-    mesh = new THREE.Mesh(geometry, material);
+    mesh = new THREE.Mesh(geometry, materials.gray);
     mesh.position.set(x-3, y-3, z);
     legs.add(mesh);
 
+    // Main legs
     geometry = new THREE.BoxGeometry(6, 24, 6);
-    mesh = new THREE.Mesh(geometry, material);
+    mesh = new THREE.Mesh(geometry, materials.blue);
     mesh.position.set(x+3, y-18, z);
     legs.add(mesh);
     geometry = new THREE.BoxGeometry(6, 24, 6);
-    mesh = new THREE.Mesh(geometry, material);
+    mesh = new THREE.Mesh(geometry, materials.blue);
     mesh.position.set(x-3, y-18, z);
     legs.add(mesh);
 
+    // Tanks
     geometry = new THREE.CylinderGeometry(2.5, 2.5, 6);
-    mesh = new THREE.Mesh(geometry, material);
+    mesh = new THREE.Mesh(geometry, materials.gray);
     mesh.position.set(x-8.5, y-9, z);
     legs.add(mesh);
     geometry = new THREE.CylinderGeometry(2.5, 2.5, 6);
-    mesh = new THREE.Mesh(geometry, material);
+    mesh = new THREE.Mesh(geometry, materials.gray);
     mesh.position.set(x+8.5, y-9, z);
-    legs.add(mesh);geometry = new THREE.CylinderGeometry(2.5, 2.5, 6);
-    mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(x-8.5, y-9, z);
     legs.add(mesh);
+    geometry = new THREE.CylinderGeometry(2.5, 2.5, 6);
 
     addFeet(legs, x, y-30, z-1);
 
@@ -221,11 +246,11 @@ function addFeet(obj, x, y, z) {
     var feet = new THREE.Object3D();
 
     geometry = new THREE.BoxGeometry(12, 6, 8);
-    mesh = new THREE.Mesh(geometry, material);
+    mesh = new THREE.Mesh(geometry, materials.blue);
     mesh.position.set(x+6, y-3, z);
     feet.add(mesh);
     geometry = new THREE.BoxGeometry(12, 6, 8);
-    mesh = new THREE.Mesh(geometry, material);
+    mesh = new THREE.Mesh(geometry, materials.blue);
     mesh.position.set(x-6, y-3, z);
     feet.add(mesh);
 
@@ -236,26 +261,29 @@ function addLeftArm(obj, x, y, z) {
     'use strict';
 
     var leftArm = new THREE.Object3D();
-
+    // Top joint
     geometry = new THREE.BoxGeometry(6, 12, 6);
-    mesh = new THREE.Mesh(geometry, material);
+    mesh = new THREE.Mesh(geometry, materials.red);
     mesh.position.set(x, y, z);
     leftArm.add(mesh);
+    // Bottom joint
     geometry = new THREE.BoxGeometry(6, 12, 18);
-    mesh = new THREE.Mesh(geometry, material);
+    mesh = new THREE.Mesh(geometry, materials.blue);
     mesh.position.set(x, y-12, z-6);
     leftArm.add(mesh);
+    // Exhaus
     geometry = new THREE.CylinderGeometry(1, 1, 8);
-    mesh = new THREE.Mesh(geometry, material);
+    mesh = new THREE.Mesh(geometry, materials.gray);
     mesh.position.set(x+4, y-2, z);
     leftArm.add(mesh);
     geometry = new THREE.CylinderGeometry(0.5, 0.5, 8);
-    mesh = new THREE.Mesh(geometry, material);
+    mesh = new THREE.Mesh(geometry, materials.gray);
     mesh.position.set(x+3.5, y+6, z);
     leftArm.add(mesh);
+    // Light
     geometry = new THREE.CylinderGeometry(2, 2, 1);
     geometry.rotateX(deg_to_rad(90));
-    mesh = new THREE.Mesh(geometry, material);
+    mesh = new THREE.Mesh(geometry, materials.yellow);
     mesh.position.set(x, y-10, z-15.5);
     leftArm.add(mesh);
 
@@ -266,26 +294,29 @@ function addRightArm(obj, x, y, z) {
     'use strict';
 
     var rightArm = new THREE.Object3D();
-
+    // Top joint
     geometry = new THREE.BoxGeometry(6, 12, 6);
-    mesh = new THREE.Mesh(geometry, material);
+    mesh = new THREE.Mesh(geometry, materials.red);
     mesh.position.set(x, y, z);
     rightArm.add(mesh);
+    // Bottom joint
     geometry = new THREE.BoxGeometry(6, 12, 18);
-    mesh = new THREE.Mesh(geometry, material);
+    mesh = new THREE.Mesh(geometry, materials.blue);
     mesh.position.set(x, y-12, z-6);
     rightArm.add(mesh);
+    // Exhaust
     geometry = new THREE.CylinderGeometry(1, 1, 8);
-    mesh = new THREE.Mesh(geometry, material);
+    mesh = new THREE.Mesh(geometry, materials.gray);
     mesh.position.set(x-4, y-2, z);
     rightArm.add(mesh);
     geometry = new THREE.CylinderGeometry(0.5, 0.5, 8);
-    mesh = new THREE.Mesh(geometry, material);
+    mesh = new THREE.Mesh(geometry, materials.gray);
     mesh.position.set(x-3.5, y+6, z);
     rightArm.add(mesh);
+    // Light
     geometry = new THREE.CylinderGeometry(2, 2, 1);
     geometry.rotateX(deg_to_rad(90));
-    mesh = new THREE.Mesh(geometry, material);
+    mesh = new THREE.Mesh(geometry, materials.yellow);
     mesh.position.set(x, y-10, z-15.5);
     rightArm.add(mesh);
 
@@ -337,6 +368,7 @@ function init() {
     
     createScene();
     createCameras();
+    camera = cameras[0];
     createRobot(0, 20, 0);
 
     render();
@@ -366,8 +398,15 @@ function onResize() {
 ///////////////////////
 function onKeyDown(e) {
     'use strict';
-
+    if(e.which >= 49 && e.which < 54) { // 1 to 5
+        camera = cameras[e.which - 49];
+    }
+    if (e.which == 54) { // 6
+        Object.keys(materials).forEach(e => materials[e].wireframe = !materials[e].wireframe);
+    }
 }
+
+document.addEventListener("keydown", onKeyDown);
 
 ///////////////////////
 /* KEY UP CALLBACK */
