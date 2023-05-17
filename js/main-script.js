@@ -13,6 +13,14 @@ var red = 0xeb1e1e
 var yellow = 0xdbb809;
 var gray = 0x808080;
 var black = 0x202020;
+var lightgray = 0xbbbbbb;
+
+var moveX = false;
+var moveNX = false;
+var moveZ = false;
+var moveNZ = false;
+
+var trailer;
 
 materials = {
     black: new THREE.MeshBasicMaterial({ color: black, wireframe: false }),
@@ -20,6 +28,7 @@ materials = {
     yellow: new THREE.MeshBasicMaterial({ color: yellow, wireframe: false }),
     gray: new THREE.MeshBasicMaterial({ color: gray, wireframe: false }),
     blue: new THREE.MeshBasicMaterial({ color: blue, wireframe: false }),
+    lightgray: new THREE.MeshBasicMaterial({ color: lightgray, wireframe: false }),
 };
 
 const SCENE_WIDTH = 250;
@@ -115,15 +124,15 @@ function createCameras() {
 function createTrailer(x, y, z) {
     'use strict';
 
-    var trailer = new THREE.Object3D();
+    trailer = new THREE.Object3D();
 
     geometry = new THREE.BoxGeometry(92, 32, 24);
-    mesh = new THREE.Mesh(geometry, materials.gray);
+    mesh = new THREE.Mesh(geometry, materials.lightgray);
     mesh.position.set(x, y, z);
     trailer.add(mesh);
     geometry = new THREE.CylinderGeometry(4, 4, 2, 16);
     mesh = new THREE.Mesh(geometry, materials.red);
-    mesh.position.set(x+40, y-17, z);
+    mesh.position.set(x+38, y-17, z);
     trailer.add(mesh);
 
     addWheel(trailer, x-18, y-20, z-6, 90, 0, 90);
@@ -366,7 +375,18 @@ function handleCollisions(){
 ////////////
 function update(){
     'use strict';
-
+    if(moveNX) {
+        trailer.translateX(-0.1);
+    }
+    if(moveX) {
+        trailer.translateX(0.1);
+    }
+    if(moveNZ) {
+        trailer.translateZ(-0.1);
+    }
+    if(moveZ) {
+        trailer.translateZ(0.1);
+    }
 }
 
 /////////////
@@ -392,7 +412,7 @@ function init() {
     createCameras();
     camera = cameras[0];
     createRobot(0, 20, 0);
-    createTrailer(70,0,0);
+    createTrailer(0,0,40);
 
     render();
 
@@ -427,6 +447,18 @@ function onKeyDown(e) {
     if (e.which == 54) { // 6
         Object.keys(materials).forEach(e => materials[e].wireframe = !materials[e].wireframe);
     }
+    if (e.which == 37) {
+        moveX = true;
+    }
+    if (e.which == 39) {
+        moveNX = true;
+    }
+    if (e.which == 38) {
+        moveZ = true;
+    }
+    if (e.which == 40) {
+        moveNZ = true;
+    }
 }
 
 document.addEventListener("keydown", onKeyDown);
@@ -434,7 +466,20 @@ document.addEventListener("keydown", onKeyDown);
 ///////////////////////
 /* KEY UP CALLBACK */
 ///////////////////////
-function onKeyUp(e){
+function onKeyUp(e) {
     'use strict';
-
+    if (e.which == 37) {
+        moveX = false;
+    }
+    if (e.which == 39) {
+        moveNX = false;
+    }
+    if (e.which == 38) {
+        moveZ = false;
+    }
+    if (e.which == 40) {
+        moveNZ = false;
+    }
 }
+
+document.addEventListener("keyup", onKeyUp);
