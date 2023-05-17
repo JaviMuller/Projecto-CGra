@@ -60,22 +60,28 @@ function createCameras() {
 
     /////////// ISOMETRIC VIEWS ///////////
     const VERTICAL_ROTATION = rad_to_deg(Math.atan(Math.sin(Math.PI/4)));
-    // Orthogonal isometric view
-    var iso_orth_camera = new THREE.OrthographicCamera(-SCENE_WIDTH/2, SCENE_WIDTH/2, SCENE_HEIGHT/2, -SCENE_HEIGHT/2, SCENE_DEPTH/1000, SCENE_DEPTH);
-    iso_orth_camera.position.set(0, 0, SCENE_DEPTH/2);
-    
+
+    var dist = new THREE.Vector3(0, 0, SCENE_DEPTH/2);
     var sphericalCoord = new THREE.Spherical();
-    sphericalCoord.setFromVector3(iso_orth_camera.position);
+    sphericalCoord.setFromVector3(dist);
     sphericalCoord.phi = THREE.Math.degToRad(-45);
     sphericalCoord.theta = THREE.Math.degToRad(VERTICAL_ROTATION);
 
     var vec = new THREE.Vector3().setFromSpherical(sphericalCoord);
+
+    // Orthogonal isometric view
+    var iso_orth_camera = new THREE.OrthographicCamera(-SCENE_WIDTH/2, SCENE_WIDTH/2, SCENE_HEIGHT/2, -SCENE_HEIGHT/2, SCENE_DEPTH/1000, SCENE_DEPTH);    
     iso_orth_camera.position.set(vec.x, vec.y, vec.z);
     iso_orth_camera.lookAt(scene.position);
     scene.add(iso_orth_camera);
-    camera = iso_orth_camera;
+    //camera = iso_orth_camera;
+
     // Perspective isometric view
     var iso_persp_camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
+    iso_persp_camera.position.set(vec.x, vec.y, vec.z);
+    iso_persp_camera.lookAt(scene.position);
+    scene.add(iso_persp_camera);
+    camera = iso_persp_camera;
 }
 
 /////////////////////
