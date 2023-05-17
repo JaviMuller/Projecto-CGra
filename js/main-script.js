@@ -112,6 +112,28 @@ function createCameras() {
 /* CREATE OBJECT3D(S) */
 ////////////////////////
 
+function createTrailer(x, y, z) {
+    'use strict';
+
+    var trailer = new THREE.Object3D();
+
+    geometry = new THREE.BoxGeometry(92, 32, 24);
+    mesh = new THREE.Mesh(geometry, materials.gray);
+    mesh.position.set(x, y, z);
+    trailer.add(mesh);
+    geometry = new THREE.CylinderGeometry(4, 4, 2, 16);
+    mesh = new THREE.Mesh(geometry, materials.red);
+    mesh.position.set(x+40, y-17, z);
+    trailer.add(mesh);
+
+    addWheel(trailer, x-18, y-20, z-6, 90, 0, 90);
+    addWheel(trailer, x-18, y-20, z+6, 90, 0, 90);
+    addWheel(trailer, x-34, y-20, z-6, 90, 0, 90);
+    addWheel(trailer, x-34, y-20, z+6, 90, 0, 90);
+
+    scene.add(trailer);
+}
+
 function createRobot(x, y, z) {
     'use strict';
 
@@ -151,7 +173,7 @@ function addBody(obj, x, y, z) {
 
 function addWheel(obj, x, y, z, rotX, rotY, rotZ) {
     'use strict';
-    geometry = new THREE.CylinderGeometry(4, 4, 4);
+    geometry = new THREE.CylinderGeometry(4, 4, 4, 16);
     geometry.rotateX(deg_to_rad(rotX));
     geometry.rotateY(deg_to_rad(rotY));
     geometry.rotateZ(deg_to_rad(rotZ));
@@ -182,11 +204,11 @@ function addHead(obj, x, y, z) {
     head.add(mesh);
 
     // Antennae
-    geometry = new THREE.CylinderGeometry(0.5, 0.5, 3);
+    geometry = new THREE.CylinderGeometry(0.5, 0.5, 3, 16);
     mesh = new THREE.Mesh(geometry, materials.black);
     mesh.position.set(x+3.5, y+4, z);
     head.add(mesh);
-    geometry = new THREE.CylinderGeometry(0.5, 0.5, 3);
+    geometry = new THREE.CylinderGeometry(0.5, 0.5, 3, 16);
     mesh = new THREE.Mesh(geometry, materials.black);
     mesh.position.set(x-3.5, y+4, z);
     head.add(mesh);
@@ -225,15 +247,15 @@ function addLegs(obj, x, y, z) {
     legs.add(mesh);
 
     // Tanks
-    geometry = new THREE.CylinderGeometry(2.5, 2.5, 6);
+    geometry = new THREE.CylinderGeometry(2.5, 2.5, 6, 16);
     mesh = new THREE.Mesh(geometry, materials.gray);
     mesh.position.set(x-8.5, y-9, z);
     legs.add(mesh);
-    geometry = new THREE.CylinderGeometry(2.5, 2.5, 6);
+    geometry = new THREE.CylinderGeometry(2.5, 2.5, 6, 16);
     mesh = new THREE.Mesh(geometry, materials.gray);
     mesh.position.set(x+8.5, y-9, z);
     legs.add(mesh);
-    geometry = new THREE.CylinderGeometry(2.5, 2.5, 6);
+    geometry = new THREE.CylinderGeometry(2.5, 2.5, 6, 16);
 
     addFeet(legs, x, y-30, z-1);
 
@@ -272,16 +294,16 @@ function addLeftArm(obj, x, y, z) {
     mesh.position.set(x, y-12, z-6);
     leftArm.add(mesh);
     // Exhaust
-    geometry = new THREE.CylinderGeometry(1, 1, 8);
+    geometry = new THREE.CylinderGeometry(1, 1, 8, 16);
     mesh = new THREE.Mesh(geometry, materials.gray);
     mesh.position.set(x+4, y-2, z);
     leftArm.add(mesh);
-    geometry = new THREE.CylinderGeometry(0.5, 0.5, 8);
+    geometry = new THREE.CylinderGeometry(0.5, 0.5, 8, 16);
     mesh = new THREE.Mesh(geometry, materials.gray);
     mesh.position.set(x+3.5, y+6, z);
     leftArm.add(mesh);
     // Light
-    geometry = new THREE.CylinderGeometry(2, 2, 1);
+    geometry = new THREE.CylinderGeometry(2, 2, 1, 16);
     geometry.rotateX(deg_to_rad(90));
     mesh = new THREE.Mesh(geometry, materials.yellow);
     mesh.position.set(x, y-10, z-15.5);
@@ -305,16 +327,16 @@ function addRightArm(obj, x, y, z) {
     mesh.position.set(x, y-12, z-6);
     rightArm.add(mesh);
     // Exhaust
-    geometry = new THREE.CylinderGeometry(1, 1, 8);
+    geometry = new THREE.CylinderGeometry(1, 1, 8, 16);
     mesh = new THREE.Mesh(geometry, materials.gray);
     mesh.position.set(x-4, y-2, z);
     rightArm.add(mesh);
-    geometry = new THREE.CylinderGeometry(0.5, 0.5, 8);
+    geometry = new THREE.CylinderGeometry(0.5, 0.5, 8, 16);
     mesh = new THREE.Mesh(geometry, materials.gray);
     mesh.position.set(x-3.5, y+6, z);
     rightArm.add(mesh);
     // Light
-    geometry = new THREE.CylinderGeometry(2, 2, 1);
+    geometry = new THREE.CylinderGeometry(2, 2, 1, 16);
     geometry.rotateX(deg_to_rad(90));
     mesh = new THREE.Mesh(geometry, materials.yellow);
     mesh.position.set(x, y-10, z-15.5);
@@ -370,6 +392,7 @@ function init() {
     createCameras();
     camera = cameras[0];
     createRobot(0, 20, 0);
+    createTrailer(70,0,0);
 
     render();
 
