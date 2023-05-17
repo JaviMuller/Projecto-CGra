@@ -22,9 +22,6 @@ var moveNZ = false;
 
 var time;
 
-var trailer;
-var robot;
-
 materials = {
     black: new THREE.MeshBasicMaterial({ color: black, wireframe: false }),
     red: new THREE.MeshBasicMaterial({ color: red, wireframe: false }),
@@ -127,7 +124,9 @@ function createCameras() {
 function createTrailer(x, y, z) {
     'use strict';
 
-    trailer = new THREE.Object3D();
+    var trailer = new THREE.Object3D();
+
+    trailer.name = "Trailer";
 
     geometry = new THREE.BoxGeometry(24, 32, 92);
     mesh = new THREE.Mesh(geometry, materials.lightgray);
@@ -149,7 +148,7 @@ function createTrailer(x, y, z) {
 function createRobot(x, y, z) {
     'use strict';
 
-    robot = new THREE.Object3D();
+    var robot = new THREE.Object3D();
 
     robot.name = "Robot";
 
@@ -340,7 +339,7 @@ function addRightArm(obj, x, y, z) {
 
     var rightArm = new THREE.Object3D();
 
-    leftArm.name = "RightArm";
+    rightArm.name = "RightArm";
 
     // Top joint
     geometry = new THREE.BoxGeometry(6, 12, 6);
@@ -394,16 +393,16 @@ function update(){
     'use strict';
     var end = Date.now()
     if(moveNX) {
-        trailer.translateX(-0.1*(end-time));
+        scene.getObjectByName("Trailer").translateX(-0.1*(end-time));
     }
     if(moveX) {
-        trailer.translateX(0.1*(end-time));
+        scene.getObjectByName("Trailer").translateX(0.1*(end-time));
     }
     if(moveNZ) {
-        trailer.translateZ(-0.1*(end-time));
+        scene.getObjectByName("Trailer").translateZ(-0.1*(end-time));
     }
     if(moveZ) {
-        trailer.translateZ(0.1*(end-time));
+        scene.getObjectByName("Trailer").translateZ(0.1*(end-time));
     }
     time = end;
 }
