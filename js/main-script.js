@@ -20,6 +20,8 @@ var moveNX = false;
 var moveZ = false;
 var moveNZ = false;
 
+var time;
+
 var trailer;
 
 materials = {
@@ -126,19 +128,19 @@ function createTrailer(x, y, z) {
 
     trailer = new THREE.Object3D();
 
-    geometry = new THREE.BoxGeometry(92, 32, 24);
+    geometry = new THREE.BoxGeometry(24, 32, 92);
     mesh = new THREE.Mesh(geometry, materials.lightgray);
     mesh.position.set(x, y, z);
     trailer.add(mesh);
     geometry = new THREE.CylinderGeometry(4, 4, 2, 16);
     mesh = new THREE.Mesh(geometry, materials.red);
-    mesh.position.set(x+38, y-17, z);
+    mesh.position.set(x, y-17, z-38);
     trailer.add(mesh);
 
-    addWheel(trailer, x-18, y-20, z-6, 90, 0, 90);
-    addWheel(trailer, x-18, y-20, z+6, 90, 0, 90);
-    addWheel(trailer, x-34, y-20, z-6, 90, 0, 90);
-    addWheel(trailer, x-34, y-20, z+6, 90, 0, 90);
+    addWheel(trailer, x-6, y-20, z+18, 90, 90, 0);
+    addWheel(trailer, x+6, y-20, z+18, 90, 90, 0);
+    addWheel(trailer, x-6, y-20, z+34, 90, 90, 0);
+    addWheel(trailer, x+6, y-20, z+34, 90, 90, 0);
 
     scene.add(trailer);
 }
@@ -375,18 +377,20 @@ function handleCollisions(){
 ////////////
 function update(){
     'use strict';
+    var end = Date.now()
     if(moveNX) {
-        trailer.translateX(-0.1);
+        trailer.translateX(-0.1*(end-time));
     }
     if(moveX) {
-        trailer.translateX(0.1);
+        trailer.translateX(0.1*(end-time));
     }
     if(moveNZ) {
-        trailer.translateZ(-0.1);
+        trailer.translateZ(-0.1*(end-time));
     }
     if(moveZ) {
-        trailer.translateZ(0.1);
+        trailer.translateZ(0.1*(end-time));
     }
+    time = end;
 }
 
 /////////////
@@ -413,7 +417,7 @@ function init() {
     camera = cameras[0];
     createRobot(0, 20, 0);
     createTrailer(0,0,40);
-
+    time = Date.now()
     render();
 
 }
