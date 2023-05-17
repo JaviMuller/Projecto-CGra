@@ -23,6 +23,7 @@ var moveNZ = false;
 var time;
 
 var trailer;
+var robot;
 
 materials = {
     black: new THREE.MeshBasicMaterial({ color: black, wireframe: false }),
@@ -148,7 +149,9 @@ function createTrailer(x, y, z) {
 function createRobot(x, y, z) {
     'use strict';
 
-    var robot = new THREE.Object3D();
+    robot = new THREE.Object3D();
+
+    robot.name = "Robot";
 
     addBody(robot, x, y, z);
     addLegs(robot, x, y-18, z+4);
@@ -198,6 +201,8 @@ function addHead(obj, x, y, z) {
 
     var head = new THREE.Object3D();
 
+    head.name = "Head";
+
     // Head
     geometry = new THREE.BoxGeometry(6, 6, 6);
     mesh = new THREE.Mesh(geometry, materials.blue);
@@ -231,6 +236,8 @@ function addLegs(obj, x, y, z) {
     'use strict';
 
     var legs = new THREE.Object3D();
+
+    legs.name = "Legs";
 
     addWheel(legs, x+8, y-17, z-1, 0, 90, 90);
     addWheel(legs, x+8, y-26, z-1, 0, 90, 90);
@@ -278,6 +285,8 @@ function addFeet(obj, x, y, z) {
 
     var feet = new THREE.Object3D();
 
+    feet.name = "Feet";
+
     geometry = new THREE.BoxGeometry(12, 6, 8);
     mesh = new THREE.Mesh(geometry, materials.blue);
     mesh.position.set(x+6, y-3, z);
@@ -294,6 +303,9 @@ function addLeftArm(obj, x, y, z) {
     'use strict';
 
     var leftArm = new THREE.Object3D();
+
+    leftArm.name = "LeftArm";
+
     // Top joint
     geometry = new THREE.BoxGeometry(6, 12, 6);
     mesh = new THREE.Mesh(geometry, materials.red);
@@ -327,6 +339,9 @@ function addRightArm(obj, x, y, z) {
     'use strict';
 
     var rightArm = new THREE.Object3D();
+
+    leftArm.name = "RightArm";
+
     // Top joint
     geometry = new THREE.BoxGeometry(6, 12, 6);
     mesh = new THREE.Mesh(geometry, materials.red);
@@ -415,7 +430,7 @@ function init() {
     createScene();
     createCameras();
     camera = cameras[0];
-    createRobot(0, 20, 0);
+    createRobot(0, -5, 0);
     createTrailer(0,0,40);
     time = Date.now()
     render();
