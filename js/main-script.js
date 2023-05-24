@@ -9,7 +9,7 @@ var robot, trailer;
 
 var geometry, materials, mesh;
 
-var movement = new THREE.Vector3(0, 0, 0);
+var trailer_speed = 0.05;
 
 const SCENE_WIDTH = 250;
 const SCENE_HEIGHT = 100;
@@ -20,58 +20,58 @@ var end = 0;
 var in_collision_animation = false;
 
 const controller = {
-    49: { pressed: false, function: () => { 
+    "1": { pressed: false, function: () => { 
                             if(!in_collision_animation)
                                 camera = cameras[0]; 
-                            controller[49].pressed = false; 
+                            controller["1"].pressed = false; 
                         }
-        }, // 1
-    50: { pressed: false, function: () => {
+        },
+    "2": { pressed: false, function: () => {
                             if(!in_collision_animation)
                                 camera = cameras[1];
-                            controller[50].pressed = false; 
+                            controller["2"].pressed = false; 
                         }
-        }, // 2
-    51: { pressed: false, function: () => {
+        },
+    "3": { pressed: false, function: () => {
                             if(!in_collision_animation)
                                 camera = cameras[2];
-                            controller[51].pressed = false; 
+                            controller["3"].pressed = false; 
                         }
-        }, // 3
-    52: { pressed: false, function: () => {
+        },
+    "4": { pressed: false, function: () => {
                             if(!in_collision_animation)
                                 camera = cameras[3];
-                            controller[52].pressed = false; 
+                            controller["4"].pressed = false; 
                         }
-        }, // 4
-    53: { pressed: false, function: () => {
+        },
+    "5": { pressed: false, function: () => {
                             if(!in_collision_animation)
                                 camera = cameras[4];
-                            controller[53].pressed = false; 
+                            controller["5"].pressed = false; 
                         }
-    }, // 5
+        },
     
-    54: { pressed: false, function: () => { 
+    "6": { pressed: false, function: () => { 
                             Object.keys(materials).forEach((e) =>
                                 materials[e].wireframe = !materials[e].wireframe
                             );
-                            controller[54].pressed = false;
+                            controller["6"].pressed = false;
                         }
-        }, // 6
+        },
 
-    81: { pressed: false, function: () => { extend_feet() } }, // Q
-    65: { pressed: false, function: () => { contract_feet() } }, // A
-    87: { pressed: false, function: () => { extend_legs() } }, // W
-    83: { pressed: false, function: () => { contract_legs() } }, // S
-    69: { pressed: false, function: () => { extend_arms() } }, // E    
-    68: { pressed: false, function: () => { contract_arms() } }, // D
-    82: { pressed: false, function: () => { extend_head() } }, // R
-    70: { pressed: false, function: () => { contract_head() } }, // F
+    "q": { pressed: false, function: () => { extend_feet() } },
+    "a": { pressed: false, function: () => { contract_feet() } },
+    "w": { pressed: false, function: () => { extend_legs() } },
+    "s": { pressed: false, function: () => { contract_legs() } },
+    "e": { pressed: false, function: () => { extend_arms() } },    
+    "d": { pressed: false, function: () => { contract_arms() } },
+    "r": { pressed: false, function: () => { extend_head() } },
+    "f": { pressed: false, function: () => { contract_head() } },
     
-    38: { pressed: false, function: () => { move_up() } }, // Arrow Up
-    40: { pressed: false, function: () => { move_down() } }, // Arrow Down
-    37: { pressed: false, function: () => { move_left() } }, // Arrow Left
-    39: { pressed: false, function: () => { move_right() } }, // Arrow Right
+    "ArrowUp": { pressed: false, function: () => { move_up() } },
+    "ArrowDown": { pressed: false, function: () => { move_down() } },
+    "ArrowLeft": { pressed: false, function: () => { move_left() } },
+    "ArrowRight": { pressed: false, function: () => { move_right() } },
 }
 
 var cyan = 0xe3e5e6;
@@ -186,12 +186,15 @@ function createTrailer(x, y, z) {
 
     trailer.name = "Trailer";
 
+    // Cargo
     geometry = new THREE.BoxGeometry(24, 32, 92);
     mesh = new THREE.Mesh(geometry, materials.lightgray);
     mesh.position.set(x, y, z);
     trailer.add(mesh);
+
+    // Coupling piece
     geometry = new THREE.CylinderGeometry(4, 4, 2, 16);
-    geometry.name = "Trailer binding";
+    geometry.name = "Trailer coupling";
     mesh = new THREE.Mesh(geometry, materials.red);
     mesh.position.set(x, y-17, z-38);
     trailer.add(mesh);
@@ -379,11 +382,13 @@ function addLeftArm(obj, x, y, z) {
     mesh = new THREE.Mesh(geometry, materials.red);
     mesh.position.set(x, y, z);
     leftArm.add(mesh);
+
     // Bottom joint
     geometry = new THREE.BoxGeometry(6, 12, 18);
     mesh = new THREE.Mesh(geometry, materials.blue);
     mesh.position.set(x, y-12, z-6);
     leftArm.add(mesh);
+
     // Exhaust
     geometry = new THREE.CylinderGeometry(1, 1, 8, 16);
     mesh = new THREE.Mesh(geometry, materials.gray);
@@ -393,6 +398,7 @@ function addLeftArm(obj, x, y, z) {
     mesh = new THREE.Mesh(geometry, materials.gray);
     mesh.position.set(x+3.5, y+6, z);
     leftArm.add(mesh);
+
     // Light
     geometry = new THREE.CylinderGeometry(2, 2, 1, 16);
     geometry.rotateX(deg_to_rad(90));
@@ -415,11 +421,13 @@ function addRightArm(obj, x, y, z) {
     mesh = new THREE.Mesh(geometry, materials.red);
     mesh.position.set(x, y, z);
     rightArm.add(mesh);
+
     // Bottom joint
     geometry = new THREE.BoxGeometry(6, 12, 18);
     mesh = new THREE.Mesh(geometry, materials.blue);
     mesh.position.set(x, y-12, z-6);
     rightArm.add(mesh);
+
     // Exhaust
     geometry = new THREE.CylinderGeometry(1, 1, 8, 16);
     mesh = new THREE.Mesh(geometry, materials.gray);
@@ -429,6 +437,7 @@ function addRightArm(obj, x, y, z) {
     mesh = new THREE.Mesh(geometry, materials.gray);
     mesh.position.set(x-3.5, y+6, z);
     rightArm.add(mesh);
+    
     // Light
     geometry = new THREE.CylinderGeometry(2, 2, 1, 16);
     geometry.rotateX(deg_to_rad(90));
@@ -457,7 +466,7 @@ function checkCollisions(){
 function handleCollisions(){
     'use strict';
     in_collision_animation = true;
-    var pos_init_trailer = trailer.getObjectByName("Trailer binding").getWorldPosition();
+    var pos_init_trailer = trailer.getObjectByName("Trailer coupling").getWorldPosition();
     var pos_init_truck = trailer.getObjectByName("Legs").getWorldPosition();
     var translation_axis = new THREE.Vector3();
     translation_axis.addVectors(pos_init_truck, pos_init_trailer.negate()).normalize;
@@ -485,29 +494,29 @@ function extend_legs(){}
 function contract_legs(){}
 
 function move_up(){
-    var speed = 0.1;
-    if(controller[39].pressed ^ controller[37].pressed) {
+    var speed = trailer_speed;
+    if(controller["ArrowLeft"].pressed ^ controller["ArrowRight"].pressed) {
         speed = Math.sqrt(2)/2*speed;
     }
     scene.getObjectByName("Trailer").translateZ(speed*(end-time));
 }
 function move_down(){
-    var speed = -0.1;
-    if(controller[39].pressed ^ controller[37].pressed) {
+    var speed = -trailer_speed;
+    if(controller["ArrowLeft"].pressed ^ controller["ArrowRight"].pressed) {
         speed = Math.sqrt(2)/2*speed;
     }
     scene.getObjectByName("Trailer").translateZ(speed*(end-time));
 }
 function move_right(){
-    var speed = -0.1;
-    if(controller[40].pressed ^ controller[38].pressed) {
+    var speed = -trailer_speed;
+    if(controller["ArrowUp"].pressed ^ controller["ArrowDown"].pressed) {
         speed = Math.sqrt(2)/2*speed;
     }
     scene.getObjectByName("Trailer").translateX(speed*(end-time));
 }
 function move_left(){
-    var speed = 0.1;
-    if(controller[40].pressed ^ controller[38].pressed) {
+    var speed = trailer_speed;
+    if(controller["ArrowUp"].pressed ^ controller["ArrowDown"].pressed) {
         speed = Math.sqrt(2)/2*speed;
     }
     scene.getObjectByName("Trailer").translateX(speed*(end-time));
@@ -572,12 +581,12 @@ function onResize() {
 /* KEY DOWN CALLBACK */
 ///////////////////////
 document.addEventListener("keydown", (e) => {
-        if (controller[e.keyCode]) { controller[e.keyCode].pressed = true; }
+        if (controller[e.key]) { controller[e.key].pressed = true; }
     });
 
 ///////////////////////
 /* KEY UP CALLBACK */
 ///////////////////////
 document.addEventListener("keyup", (e) => {
-        if (controller[e.keyCode]) { controller[e.keyCode].pressed = false; }
+        if (controller[e.key]) { controller[e.key].pressed = false; }
     });
