@@ -44,7 +44,7 @@ const controller = {
 
     "7": { pressed: false, function: () => { if(coupled) uncoupleTrailer(); }},
 
-    "x": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) extend_feet() } },
+    "q": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) extend_feet() } },
     "a": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) contract_feet() } },
     "w": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) extend_legs() } },
     "s": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) contract_legs() } },
