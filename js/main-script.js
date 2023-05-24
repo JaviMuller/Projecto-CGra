@@ -520,7 +520,7 @@ function update() {
     'use strict';
     end = Date.now();
     // Collision handling
-    if (collision_animation.playing || (robot.truck && checkCollisions())) { handleCollisions(); }
+    if (collision_animation.playing || (robot.truck() && checkCollisions())) { handleCollisions(); }
     // Event handling
     Object.keys(controller).forEach((e) => { if (controller[e].pressed) { controller[e].function(); }})
     time = end;
