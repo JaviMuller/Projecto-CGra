@@ -44,7 +44,7 @@ const controller = {
 
     "7": { pressed: false, function: () => { if(coupled) uncoupleTrailer(); }},
 
-    "q": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) extend_feet() } },
+    "x": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) extend_feet() } },
     "a": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) contract_feet() } },
     "w": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) extend_legs() } },
     "s": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) contract_legs() } },
@@ -203,9 +203,9 @@ function createRobot(x, y, z) {
     robot = new THREE.Object3D();
 
     robot.name = "Robot";
-    robot.truck = () => {return scene.getObjectByName("GroupLegs").rotation.x == Math.PI/2 &&
-                    scene.getObjectByName("GroupFeet").rotation.x == Math.PI/2 &&
-                    scene.getObjectByName("Head").rotation.x == Math.PI &&
+    robot.truck = () => {return scene.getObjectByName("GroupLegs").rotation.x == -Math.PI/2 &&
+                    scene.getObjectByName("GroupFeet").rotation.x == -Math.PI/2 &&
+                    scene.getObjectByName("Head").rotation.x == -Math.PI &&
                     scene.getObjectByName("RightArm").position.x == 6 &&
                     scene.getObjectByName("LeftArm").position.x == -6;}
 
@@ -490,18 +490,22 @@ function extend_feet(){
     if(scene.getObjectByName("GroupFeet").rotation.x > -Math.PI/2) {
         var rotation = -(end-time)*Math.PI/1800;
         if((rotation + scene.getObjectByName("GroupFeet").rotation.x) < -Math.PI/2) {
-            rotation = -(Math.PI/2)-scene.getObjectByName("GroupFeet").rotation.x;
+            scene.getObjectByName("GroupFeet").rotation.x = -Math.PI/2;
         }
-        scene.getObjectByName("GroupFeet").rotateOnAxis(new THREE.Vector3(1,0,0), rotation);
+        else {
+            scene.getObjectByName("GroupFeet").rotateOnAxis(new THREE.Vector3(1,0,0), rotation);
+        }
     }
 }
 function contract_feet(){
     if(scene.getObjectByName("GroupFeet").rotation.x < 0) {
         var rotation = (end-time)*Math.PI/1800;
         if((rotation + scene.getObjectByName("GroupFeet").rotation.x) > 0) {
-            rotation = -scene.getObjectByName("GroupFeet").rotation.x;
+            scene.getObjectByName("GroupLFeet").rotation.x = 0;
         }
-        scene.getObjectByName("GroupFeet").rotateOnAxis(new THREE.Vector3(1,0,0), rotation);
+        else {
+            scene.getObjectByName("GroupFeet").rotateOnAxis(new THREE.Vector3(1,0,0), rotation);
+        }
     }
 }
 function extend_arms(){
@@ -537,39 +541,48 @@ function contract_arms(){
     }
 }
 function extend_head(){
-    if(scene.getObjectByName("Head").rotation.x > -Math.PI) {
+    if(scene.getObjectByName("Head").rotation.x > -Math.PI && scene.getObjectByName("Head").rotation.x <= 0) {
         var rotation = -(end-time)*Math.PI/1800;
         if((rotation + scene.getObjectByName("Head").rotation.x) < -Math.PI) {
-            rotation = -(Math.PI)-scene.getObjectByName("Head").rotation.x;
+            scene.getObjectByName("Head").rotation.x = -Math.PI;
         }
-        scene.getObjectByName("Head").rotateOnAxis(new THREE.Vector3(1,0,0), rotation);
+        else {
+            scene.getObjectByName("Head").rotateOnAxis(new THREE.Vector3(1,0,0), rotation);
+        }
     }
 }
 function contract_head(){
+    console.log(scene.getObjectByName("Head").rotation.x);
     if(scene.getObjectByName("Head").rotation.x < 0) {
         var rotation = (end-time)*Math.PI/1800;
         if((rotation + scene.getObjectByName("Head").rotation.x) > 0) {
-            rotation = -scene.getObjectByName("Head").rotation.x;
+            scene.getObjectByName("Head").rotation.x = 0;
         }
-        scene.getObjectByName("Head").rotateOnAxis(new THREE.Vector3(1,0,0), rotation);
+        else {
+            scene.getObjectByName("Head").rotateOnAxis(new THREE.Vector3(1,0,0), rotation);
+        }
     }
 }
 function extend_legs(){
     if(scene.getObjectByName("GroupLegs").rotation.x > -Math.PI/2) {
         var rotation = -(end-time)*Math.PI/1800;
         if((rotation + scene.getObjectByName("GroupLegs").rotation.x) < -Math.PI/2) {
-            rotation = -(Math.PI/2)-scene.getObjectByName("GroupLegs").rotation.x;
+            scene.getObjectByName("GroupLegs").rotation.x = -Math.PI/2;
         }
-        scene.getObjectByName("GroupLegs").rotateOnAxis(new THREE.Vector3(1,0,0), rotation);
+        else {
+            scene.getObjectByName("GroupLegs").rotateOnAxis(new THREE.Vector3(1,0,0), rotation);
+        }
     }
 }
 function contract_legs(){
     if(scene.getObjectByName("GroupLegs").rotation.x < 0) {
         var rotation = (end-time)*Math.PI/1800;
         if((rotation + scene.getObjectByName("GroupLegs").rotation.x) > 0) {
-            rotation = -scene.getObjectByName("GroupLegs").rotation.x;
+            scene.getObjectByName("GroupLegs").rotation.x = 0;
         }
-        scene.getObjectByName("GroupLegs").rotateOnAxis(new THREE.Vector3(1,0,0), rotation);
+        else {
+            scene.getObjectByName("GroupLegs").rotateOnAxis(new THREE.Vector3(1,0,0), rotation);
+        }
     }
 }
 
