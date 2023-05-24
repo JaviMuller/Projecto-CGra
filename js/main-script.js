@@ -179,7 +179,7 @@ function createTrailer(x, y, z) {
 
     // Coupling piece
     geometry = new THREE.CylinderGeometry(4, 4, 2, 16);
-    geometry.name = "Trailer coupling";
+    geometry.name = "TrailerCoupling";
     mesh = new THREE.Mesh(geometry, materials.red);
     mesh.position.set(x, y-17, z-38);
     trailer.add(mesh);
@@ -453,7 +453,7 @@ function handleCollisions() {
         collision_animation.playing = true;
         collision_animation.progress = 0;
 
-        var pos_init_trailer = trailer.getObjectByName("Trailer coupling").getWorldPosition();
+        var pos_init_trailer = trailer.getObjectByName("TrailerCoupling").getWorldPosition();
         var pos_init_truck = robot.getObjectByName("Legs").getWorldPosition();
         
         collision_animation.direction.addVectors(pos_init_truck, pos_init_trailer.negate()).normalize();
