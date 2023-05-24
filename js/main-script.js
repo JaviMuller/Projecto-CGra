@@ -510,31 +510,28 @@ function extend_arms(){
         if(translation + scene.getObjectByName("RightArm").position.x < 0) {
             translation = (0 - scene.getObjectByName("RightArm").position.x);
         }
-        scene.getObjectByName("RightArm").translateX(translation);  
+        scene.getObjectByName("RightArm").translateX(translation);
     }
     if(scene.getObjectByName("LeftArm").position.x < 0) {
-        console.log(scene.getObjectByName("LeftArm").position.x);
         var translation = -0.05*(end-time);
-        if(translation + scene.getObjectByName("LeftArm").position.x > 0) {
-            translation = (0 - scene.getObjectByName("LeftArm").position.x);
+        if(-translation + scene.getObjectByName("LeftArm").position.x > 0) {
+            translation = (0 + scene.getObjectByName("LeftArm").position.x);
         }   
         scene.getObjectByName("LeftArm").translateX(-translation);  
     }
 }
 function contract_arms(){
     if(scene.getObjectByName("RightArm").position.x < 6) {
-        console.log(scene.getObjectByName("RightArm").position.x);
         var translation = 0.05*(end-time);
         if(translation + scene.getObjectByName("RightArm").position.x > 6) {
             translation = (6 - scene.getObjectByName("RightArm").position.x);
         }
-        scene.getObjectByName("RightArm").translateX(translation);  
+        scene.getObjectByName("RightArm").translateX(translation);   
     }
     if(scene.getObjectByName("LeftArm").position.x > -6) {
-        console.log(scene.getObjectByName("LeftArm").position.x);
         var translation = 0.05*(end-time);
-        if(translation + scene.getObjectByName("LeftArm").position.x < -6) {
-            translation = (6 - scene.getObjectByName("LeftArm").position.x);
+        if(-translation + scene.getObjectByName("LeftArm").position.x < -6) {
+            translation = (6 + scene.getObjectByName("LeftArm").position.x);
         }
         scene.getObjectByName("LeftArm").translateX(-translation);  
     }
