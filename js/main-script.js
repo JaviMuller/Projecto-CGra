@@ -5,6 +5,8 @@
 var cameras = []; 
 var camera, scene, renderer;
 
+var robot;
+
 var geometry, materials, mesh;
 var movement = new THREE.Vector3(0, 0, 0);
 
@@ -12,33 +14,38 @@ const SCENE_WIDTH = 250;
 const SCENE_HEIGHT = 100;
 const SCENE_DEPTH = SCENE_WIDTH;
 
+var exten
+
+var end = 0;
+
 const controller = {
-    49: { pressed: false, function: () => { camera = cameras[0]; }}, // 1
-    50: { pressed: false, function: () => { camera = cameras[1]; }}, // 2
-    51: { pressed: false, function: () => { camera = cameras[2]; }}, // 3
-    52: { pressed: false, function: () => { camera = cameras[3]; }}, // 4
-    53: { pressed: false, function: () => { camera = cameras[4]; }}, // 5
+    49: { pressed: false, function: () => { camera = cameras[0]; controller[49].pressed = false; }}, // 1
+    50: { pressed: false, function: () => { camera = cameras[1]; controller[50].pressed = false; }}, // 2
+    51: { pressed: false, function: () => { camera = cameras[2]; controller[51].pressed = false; }}, // 3
+    52: { pressed: false, function: () => { camera = cameras[3]; controller[52].pressed = false; }}, // 4
+    53: { pressed: false, function: () => { camera = cameras[4]; controller[53].pressed = false; }}, // 5
     
     54: { pressed: false, function: () => { 
                             Object.keys(materials).forEach((e) =>
                                 materials[e].wireframe = !materials[e].wireframe
                             );
-                         }
+                            controller[54].pressed = false;
+                         },
         }, // 6
+
+    81: { pressed: false, function: () => {extend_feet()}}, // Q
+    65: { pressed: false, function: () => {contract_feet()}}, // A
+    87: { pressed: false, function: () => {extend_legs()}}, // W
+    83: { pressed: false, function: () => {contract_legs()}}, // S
+    69: { pressed: false, function: () => {extend_arms()}}, // E    
+    68: { pressed: false, function: () => {contract_arms()}}, // D
+    82: { pressed: false, function: () => {extend_head()}}, // R
+    70: { pressed: false, function: () => {contract_head()}}, // F
     
-    81: { pressed: false, function: robot.extend_feet() }, // Q
-    65: { pressed: false, function: robot.contract_feet() }, // A
-    87: { pressed: false, function: robot.extend_legs() }, // W
-    83: { pressed: false, function: robot.contract_legs() }, // S
-    69: { pressed: false, function: robot.extend_arms() }, // E    
-    68: { pressed: false, function: robot.contract_arms() }, // D
-    82: { pressed: false, function: robot.extend_head() }, // R
-    70: { pressed: false, function: robot.contract_head() }, // F
-    
-    38: { pressed: false, function: move_up() }, // Arrow Up
-    40: { pressed: false, function: move_down() }, // Arrow Down
-    37: { pressed: false, function: move_left() }, // Arrow Left
-    39: { pressed: false, function: move_down() }, // Arrow Right
+    38: { pressed: false, function: () => {move_up()}}, // Arrow Up
+    40: { pressed: false, function: () => {move_down()}}, // Arrow Down
+    37: { pressed: false, function: () => {move_left()}}, // Arrow Left
+    39: { pressed: false, function: () => {move_right()}}, // Arrow Right
 }
 
 var cyan = 0xe3e5e6;
@@ -173,7 +180,7 @@ function createTrailer(x, y, z) {
 function createRobot(x, y, z) {
     'use strict';
 
-    var robot = new THREE.Object3D();
+    robot = new THREE.Object3D();
 
     robot.name = "Robot";
 
@@ -414,11 +421,51 @@ function handleCollisions(){
 ////////////
 /* UPDATE */
 ////////////
+
+function extend_feet(){}
+function contract_feet(){}
+function extend_arms(){}
+function contract_arms(){}
+function extend_head(){}
+function contract_head(){}
+function extend_legs(){}
+function contract_legs(){}
+
+function move_up(){
+    var speed = 0.1;
+    if(controller[39].pressed || controller[37].pressed) {
+        speed = Math.sqrt(2)/2*speed;
+    }
+    scene.getObjectByName("Trailer").translateZ(speed*(end-time));
+}
+function move_down(){
+    var speed = -0.1;
+    if(controller[39].pressed || controller[37].pressed) {
+        speed = Math.sqrt(2)/2*speed;
+    }
+    scene.getObjectByName("Trailer").translateZ(speed*(end-time));
+}
+function move_right(){
+    var speed = -0.1;
+    if(controller[40].pressed || controller[38].pressed) {
+        speed = Math.sqrt(2)/2*speed;
+    }
+    scene.getObjectByName("Trailer").translateX(speed*(end-time));
+}
+function move_left(){
+    var speed = 0.1;
+    if(controller[40].pressed || controller[38].pressed) {
+        speed = Math.sqrt(2)/2*speed;
+    }
+    scene.getObjectByName("Trailer").translateX(speed*(end-time));
+}
+
 function update(){
     'use strict';
-    var end = Date.now()
-    controller.forEach((e) =>)
+    end = Date.now()
+    Object.keys(controller).forEach((e) => { if (controller[e].pressed) { controller[e].function(); }})
     time = end;
+    
 }
 
 /////////////
@@ -472,12 +519,12 @@ function onResize() {
 /* KEY DOWN CALLBACK */
 ///////////////////////
 document.addEventListener("keydown", (e) => {
-        if (controller[e.key]) { controller[e.key].pressed = true; }
+        if (controller[e.keyCode]) { controller[e.keyCode].pressed = true; }
     });
 
 ///////////////////////
 /* KEY UP CALLBACK */
 ///////////////////////
 document.addEventListener("keyup", (e) => {
-        if (controller[e.key]) { controller[e.key].pressed = false; }
+        if (controller[e.keyCode]) { controller[e.keyCode].pressed = false; }
     });
