@@ -6,6 +6,40 @@ var cameras = [];
 var camera, scene, renderer;
 
 var geometry, materials, mesh;
+var movement = new THREE.Vector3(0, 0, 0);
+
+const SCENE_WIDTH = 250;
+const SCENE_HEIGHT = 100;
+const SCENE_DEPTH = SCENE_WIDTH;
+
+const controller = {
+    49: { pressed: false, function: () => { camera = cameras[0]; }}, // 1
+    50: { pressed: false, function: () => { camera = cameras[1]; }}, // 2
+    51: { pressed: false, function: () => { camera = cameras[2]; }}, // 3
+    52: { pressed: false, function: () => { camera = cameras[3]; }}, // 4
+    53: { pressed: false, function: () => { camera = cameras[4]; }}, // 5
+    
+    54: { pressed: false, function: () => { 
+                            Object.keys(materials).forEach((e) =>
+                                materials[e].wireframe = !materials[e].wireframe
+                            );
+                         }
+        }, // 6
+    
+    81: { pressed: false, function: robot.extend_feet() }, // Q
+    65: { pressed: false, function: robot.contract_feet() }, // A
+    87: { pressed: false, function: robot.extend_legs() }, // W
+    83: { pressed: false, function: robot.contract_legs() }, // S
+    69: { pressed: false, function: robot.extend_arms() }, // E    
+    68: { pressed: false, function: robot.contract_arms() }, // D
+    82: { pressed: false, function: robot.extend_head() }, // R
+    70: { pressed: false, function: robot.contract_head() }, // F
+    
+    38: { pressed: false, function: move_up() }, // Arrow Up
+    40: { pressed: false, function: move_down() }, // Arrow Down
+    37: { pressed: false, function: move_left() }, // Arrow Left
+    39: { pressed: false, function: move_down() }, // Arrow Right
+}
 
 var cyan = 0xe3e5e6;
 var blue = 0x1332a1;
@@ -14,11 +48,6 @@ var yellow = 0xdbb809;
 var gray = 0x808080;
 var black = 0x202020;
 var lightgray = 0xbbbbbb;
-
-var moveX = false;
-var moveNX = false;
-var moveZ = false;
-var moveNZ = false;
 
 var time;
 
@@ -29,11 +58,7 @@ materials = {
     gray: new THREE.MeshBasicMaterial({ color: gray, wireframe: false }),
     blue: new THREE.MeshBasicMaterial({ color: blue, wireframe: false }),
     lightgray: new THREE.MeshBasicMaterial({ color: lightgray, wireframe: false }),
-};
-
-const SCENE_WIDTH = 250;
-const SCENE_HEIGHT = 100;
-const SCENE_DEPTH = SCENE_WIDTH;
+}
 
 function deg_to_rad(degrees) {
     return degrees * (Math.PI/180);
@@ -392,18 +417,7 @@ function handleCollisions(){
 function update(){
     'use strict';
     var end = Date.now()
-    if(moveNX) {
-        scene.getObjectByName("Trailer").translateX(-0.1*(end-time));
-    }
-    if(moveX) {
-        scene.getObjectByName("Trailer").translateX(0.1*(end-time));
-    }
-    if(moveNZ) {
-        scene.getObjectByName("Trailer").translateZ(-0.1*(end-time));
-    }
-    if(moveZ) {
-        scene.getObjectByName("Trailer").translateZ(0.1*(end-time));
-    }
+    controller.forEach((e) =>)
     time = end;
 }
 
@@ -457,47 +471,13 @@ function onResize() {
 ///////////////////////
 /* KEY DOWN CALLBACK */
 ///////////////////////
-function onKeyDown(e) {
-    'use strict';
-    if(e.which >= 49 && e.which < 54) { // 1 to 5
-        camera = cameras[e.which - 49];
-    }
-    if (e.which == 54) { // 6
-        Object.keys(materials).forEach(e => materials[e].wireframe = !materials[e].wireframe);
-    }
-    if (e.which == 37) {
-        moveX = true;
-    }
-    if (e.which == 39) {
-        moveNX = true;
-    }
-    if (e.which == 38) {
-        moveZ = true;
-    }
-    if (e.which == 40) {
-        moveNZ = true;
-    }
-}
-
-document.addEventListener("keydown", onKeyDown);
+document.addEventListener("keydown", (e) => {
+        if (controller[e.key]) { controller[e.key].pressed = true; }
+    });
 
 ///////////////////////
 /* KEY UP CALLBACK */
 ///////////////////////
-function onKeyUp(e) {
-    'use strict';
-    if (e.which == 37) {
-        moveX = false;
-    }
-    if (e.which == 39) {
-        moveNX = false;
-    }
-    if (e.which == 38) {
-        moveZ = false;
-    }
-    if (e.which == 40) {
-        moveNZ = false;
-    }
-}
-
-document.addEventListener("keyup", onKeyUp);
+document.addEventListener("keyup", (e) => {
+        if (controller[e.key]) { controller[e.key].pressed = false; }
+    });
