@@ -17,40 +17,23 @@ const SCENE_DEPTH = SCENE_WIDTH;
 
 var end = 0;
 
-var in_collision_animation = false;
+var collision_animation = {
+    playing: false,
+    progress: 0,
+    direction: new THREE.Vector3(0, 0, 0),
+    distance: 0,
+    steps: 100
+}
+
+var coupled = false;
 
 const controller = {
-    "1": { pressed: false, function: () => { 
-                            if(!in_collision_animation)
-                                camera = cameras[0]; 
-                            controller["1"].pressed = false; 
-                        }
-        },
-    "2": { pressed: false, function: () => {
-                            if(!in_collision_animation)
-                                camera = cameras[1];
-                            controller["2"].pressed = false; 
-                        }
-        },
-    "3": { pressed: false, function: () => {
-                            if(!in_collision_animation)
-                                camera = cameras[2];
-                            controller["3"].pressed = false; 
-                        }
-        },
-    "4": { pressed: false, function: () => {
-                            if(!in_collision_animation)
-                                camera = cameras[3];
-                            controller["4"].pressed = false; 
-                        }
-        },
-    "5": { pressed: false, function: () => {
-                            if(!in_collision_animation)
-                                camera = cameras[4];
-                            controller["5"].pressed = false; 
-                        }
-        },
-    
+    "1": { pressed: false, function: () => { camera = cameras[0]; controller["1"].pressed = false; } },
+    "2": { pressed: false, function: () => { camera = cameras[1]; controller["2"].pressed = false; } },
+    "3": { pressed: false, function: () => { camera = cameras[2]; controller["3"].pressed = false; } },
+    "4": { pressed: false, function: () => { camera = cameras[3]; controller["4"].pressed = false; } },
+    "5": { pressed: false, function: () => { camera = cameras[4]; controller["5"].pressed = false; } },
+
     "6": { pressed: false, function: () => { 
                             Object.keys(materials).forEach((e) =>
                                 materials[e].wireframe = !materials[e].wireframe
@@ -59,19 +42,21 @@ const controller = {
                         }
         },
 
-    "q": { pressed: false, function: () => { extend_feet() } },
-    "a": { pressed: false, function: () => { contract_feet() } },
-    "w": { pressed: false, function: () => { extend_legs() } },
-    "s": { pressed: false, function: () => { contract_legs() } },
-    "e": { pressed: false, function: () => { extend_arms() } },    
-    "d": { pressed: false, function: () => { contract_arms() } },
-    "r": { pressed: false, function: () => { extend_head() } },
-    "f": { pressed: false, function: () => { contract_head() } },
+    "7": { pressed: false, function: () => { if(coupled) uncoupleTrailer(); }},
+
+    "q": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) extend_feet() } },
+    "a": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) contract_feet() } },
+    "w": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) extend_legs() } },
+    "s": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) contract_legs() } },
+    "e": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) extend_arms() } },    
+    "d": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) contract_arms() } },
+    "r": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) extend_head() } },
+    "f": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) contract_head() } },
     
-    "ArrowUp": { pressed: false, function: () => { move_up() } },
-    "ArrowDown": { pressed: false, function: () => { move_down() } },
-    "ArrowLeft": { pressed: false, function: () => { move_left() } },
-    "ArrowRight": { pressed: false, function: () => { move_right() } },
+    "ArrowUp": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) move_up() } },
+    "ArrowDown": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) move_down() } },
+    "ArrowLeft": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) move_left() } },
+    "ArrowRight": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) move_right() } },
 }
 
 var cyan = 0xe3e5e6;
@@ -451,10 +436,9 @@ function addRightArm(obj, x, y, z) {
 //////////////////////
 /* CHECK COLLISIONS */
 //////////////////////
-function checkCollisions(){
+function checkCollisions() {
     'use strict';
-    return robot.truck &&
-           robot.x_max > trailer.x_min &&
+    return robot.x_max > trailer.x_min &&
            robot.x_min < trailer.x_max &&
            robot.z_max < trailer.z_min &&
            robot.z_min > trailer.z_max;
@@ -463,58 +447,63 @@ function checkCollisions(){
 ///////////////////////
 /* HANDLE COLLISIONS */
 ///////////////////////
-function handleCollisions(){
+function handleCollisions() {
     'use strict';
-    in_collision_animation = true;
-    var pos_init_trailer = trailer.getObjectByName("Trailer coupling").getWorldPosition();
-    var pos_init_truck = trailer.getObjectByName("Legs").getWorldPosition();
-    var translation_axis = new THREE.Vector3();
-    translation_axis.addVectors(pos_init_truck, pos_init_trailer.negate()).normalize;
-    var distance = pos_init_truck.distanceTo(pos_init_trailer);
+    if (!collision_animation.playing) {
+        collision_animation.playing = true;
+        collision_animation.progress = 0;
 
-    var steps = 100;
-    for (let animation_progress = 0; animation_progress <= 1; animation_progress += 1/steps) {
-        trailer.translateOnAxis(translation_axis, distance/steps);
+        var pos_init_trailer = trailer.getObjectByName("Trailer coupling").getWorldPosition();
+        var pos_init_truck = robot.getObjectByName("Legs").getWorldPosition();
+        
+        collision_animation.direction.addVectors(pos_init_truck, pos_init_trailer.negate()).normalize();
+        collision_animation.distance = pos_init_truck.distanceTo(pos_init_trailer);
+
+    } else if (collision_animation.progress <= 1) { // Playing animation
+        trailer.translateOnAxis(collision_animation.direction, collision_animation.distance/steps);
+        collision_animation.progress += 1/steps;
+
+    } else { // Animation finished
+        collision_animation.playing = false;
+        coupled = true;
     }
-
-    in_collision_animation = false;
 }
 
 ////////////
 /* UPDATE */
 ////////////
 
-function extend_feet(){}
-function contract_feet(){}
-function extend_arms(){}
-function contract_arms(){}
-function extend_head(){}
-function contract_head(){}
-function extend_legs(){}
-function contract_legs(){}
+function extend_feet() {}
+function contract_feet() {}
+function extend_arms() {}
+function contract_arms() {}
+function extend_head() {}
+function contract_head() {}
+function extend_legs() {}
+function contract_legs() {}
 
-function move_up(){
+function move_up() {
     var speed = trailer_speed;
     if(controller["ArrowLeft"].pressed ^ controller["ArrowRight"].pressed) {
         speed = Math.sqrt(2)/2*speed;
     }
     scene.getObjectByName("Trailer").translateZ(speed*(end-time));
 }
-function move_down(){
+function move_down() {
     var speed = -trailer_speed;
     if(controller["ArrowLeft"].pressed ^ controller["ArrowRight"].pressed) {
         speed = Math.sqrt(2)/2*speed;
     }
     scene.getObjectByName("Trailer").translateZ(speed*(end-time));
 }
-function move_right(){
+function move_right() {
     var speed = -trailer_speed;
     if(controller["ArrowUp"].pressed ^ controller["ArrowDown"].pressed) {
         speed = Math.sqrt(2)/2*speed;
     }
     scene.getObjectByName("Trailer").translateX(speed*(end-time));
 }
-function move_left(){
+function move_left() {
     var speed = trailer_speed;
     if(controller["ArrowUp"].pressed ^ controller["ArrowDown"].pressed) {
         speed = Math.sqrt(2)/2*speed;
@@ -522,9 +511,17 @@ function move_left(){
     scene.getObjectByName("Trailer").translateX(speed*(end-time));
 }
 
-function update(){
+function uncoupleTrailer() {
+    trailer.translateZ(25);
+    coupled = false;
+}
+
+function update() {
     'use strict';
-    end = Date.now()
+    end = Date.now();
+    // Collision handling
+    if (collision_animation.playing || (robot.truck && checkCollisions())) { handleCollisions(); }
+    // Event handling
     Object.keys(controller).forEach((e) => { if (controller[e].pressed) { controller[e].function(); }})
     time = end;
     
@@ -565,8 +562,8 @@ function init() {
 function animate() {
     'use strict';
     update();
-    requestAnimationFrame(animate);
     render();
+    requestAnimationFrame(animate);
 }
 
 ////////////////////////////
@@ -574,7 +571,6 @@ function animate() {
 ////////////////////////////
 function onResize() { 
     'use strict';
-
 }
 
 ///////////////////////
