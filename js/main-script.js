@@ -203,9 +203,18 @@ function createRobot(x, y, z) {
     robot = new THREE.Object3D();
 
     robot.name = "Robot";
+    robot.truck = () => {return scene.getObjectByName("GroupLegs").rotation.x == Math.PI/2 &&
+                    scene.getObjectByName("GroupFeet").rotation.x == Math.PI/2 &&
+                    scene.getObjectByName("Head").rotation.x == Math.PI &&
+                    scene.getObjectByName("RightArm").position.x == 6 &&
+                    scene.getObjectByName("LeftArm").position.x == -6;}
 
     addBody(robot, x, y, z);
-    addLegs(robot, x, y-18, z+4);
+    const groupLegs = new THREE.Group();
+    groupLegs.name = "GroupLegs";
+    robot.add(groupLegs);
+    groupLegs.position.set(0,-17, 2);
+    addLegs(groupLegs, x, y-1 , z-2);
     addLeftArm(robot, x+15, y, z+5);
     addRightArm(robot, x-15, y, z+5);
     addHead(robot, x, y+6, z);
@@ -331,7 +340,12 @@ function addLegs(obj, x, y, z) {
     legs.add(mesh);
     geometry = new THREE.CylinderGeometry(2.5, 2.5, 6, 16);
 
-    addFeet(legs, x, y-30, z-1);
+    const groupFeet = new THREE.Group();
+    groupFeet.name = "GroupFeet";
+    groupFeet.position.set(x,y-33,z);
+    addFeet(groupFeet, x, y+6, z+1);
+
+    obj.add(groupFeet);
 
     obj.add(legs);
 }
@@ -345,11 +359,11 @@ function addFeet(obj, x, y, z) {
 
     geometry = new THREE.BoxGeometry(12, 6, 8);
     mesh = new THREE.Mesh(geometry, materials.blue);
-    mesh.position.set(x+6, y-3, z);
+    mesh.position.set(x+6, y, z);
     feet.add(mesh);
     geometry = new THREE.BoxGeometry(12, 6, 8);
     mesh = new THREE.Mesh(geometry, materials.blue);
-    mesh.position.set(x-6, y-3, z);
+    mesh.position.set(x-6, y, z);
     feet.add(mesh);
 
     obj.add(feet);
@@ -471,16 +485,96 @@ function handleCollisions() {
 
 ////////////
 /* UPDATE */
-////////////
-
-function extend_feet() {}
-function contract_feet() {}
-function extend_arms() {}
-function contract_arms() {}
-function extend_head() {}
-function contract_head() {}
-function extend_legs() {}
-function contract_legs() {}
+//////////// 
+function extend_feet(){
+    if(scene.getObjectByName("GroupFeet").rotation.x > -Math.PI/2) {
+        var rotation = -(end-time)*Math.PI/1800;
+        if((rotation + scene.getObjectByName("GroupFeet").rotation.x) < -Math.PI/2) {
+            rotation = -(Math.PI/2)-scene.getObjectByName("GroupFeet").rotation.x;
+        }
+        scene.getObjectByName("GroupFeet").rotateOnAxis(new THREE.Vector3(1,0,0), rotation);
+    }
+}
+function contract_feet(){
+    if(scene.getObjectByName("GroupFeet").rotation.x < 0) {
+        var rotation = (end-time)*Math.PI/1800;
+        if((rotation + scene.getObjectByName("GroupFeet").rotation.x) > 0) {
+            rotation = -scene.getObjectByName("GroupFeet").rotation.x;
+        }
+        scene.getObjectByName("GroupFeet").rotateOnAxis(new THREE.Vector3(1,0,0), rotation);
+    }
+}
+function extend_arms(){
+    if(scene.getObjectByName("RightArm").position.x > 0) {
+        var translation = -0.05*(end-time);
+        if(translation + scene.getObjectByName("RightArm").position.x < 0) {
+            translation = (0 - scene.getObjectByName("RightArm").position.x);
+        }
+        scene.getObjectByName("RightArm").translateX(translation);  
+    }
+    if(scene.getObjectByName("LeftArm").position.x < 0) {
+        console.log(scene.getObjectByName("LeftArm").position.x);
+        var translation = -0.05*(end-time);
+        if(translation + scene.getObjectByName("LeftArm").position.x > 0) {
+            translation = (0 - scene.getObjectByName("LeftArm").position.x);
+        }   
+        scene.getObjectByName("LeftArm").translateX(-translation);  
+    }
+}
+function contract_arms(){
+    if(scene.getObjectByName("RightArm").position.x < 6) {
+        console.log(scene.getObjectByName("RightArm").position.x);
+        var translation = 0.05*(end-time);
+        if(translation + scene.getObjectByName("RightArm").position.x > 6) {
+            translation = (6 - scene.getObjectByName("RightArm").position.x);
+        }
+        scene.getObjectByName("RightArm").translateX(translation);  
+    }
+    if(scene.getObjectByName("LeftArm").position.x > -6) {
+        console.log(scene.getObjectByName("LeftArm").position.x);
+        var translation = 0.05*(end-time);
+        if(translation + scene.getObjectByName("LeftArm").position.x < -6) {
+            translation = (6 - scene.getObjectByName("LeftArm").position.x);
+        }
+        scene.getObjectByName("LeftArm").translateX(-translation);  
+    }
+}
+function extend_head(){
+    if(scene.getObjectByName("Head").rotation.x > -Math.PI) {
+        var rotation = -(end-time)*Math.PI/1800;
+        if((rotation + scene.getObjectByName("Head").rotation.x) < -Math.PI) {
+            rotation = -(Math.PI)-scene.getObjectByName("Head").rotation.x;
+        }
+        scene.getObjectByName("Head").rotateOnAxis(new THREE.Vector3(1,0,0), rotation);
+    }
+}
+function contract_head(){
+    if(scene.getObjectByName("Head").rotation.x < 0) {
+        var rotation = (end-time)*Math.PI/1800;
+        if((rotation + scene.getObjectByName("Head").rotation.x) > 0) {
+            rotation = -scene.getObjectByName("Head").rotation.x;
+        }
+        scene.getObjectByName("Head").rotateOnAxis(new THREE.Vector3(1,0,0), rotation);
+    }
+}
+function extend_legs(){
+    if(scene.getObjectByName("GroupLegs").rotation.x > -Math.PI/2) {
+        var rotation = -(end-time)*Math.PI/1800;
+        if((rotation + scene.getObjectByName("GroupLegs").rotation.x) < -Math.PI/2) {
+            rotation = -(Math.PI/2)-scene.getObjectByName("GroupLegs").rotation.x;
+        }
+        scene.getObjectByName("GroupLegs").rotateOnAxis(new THREE.Vector3(1,0,0), rotation);
+    }
+}
+function contract_legs(){
+    if(scene.getObjectByName("GroupLegs").rotation.x < 0) {
+        var rotation = (end-time)*Math.PI/1800;
+        if((rotation + scene.getObjectByName("GroupLegs").rotation.x) > 0) {
+            rotation = -scene.getObjectByName("GroupLegs").rotation.x;
+        }
+        scene.getObjectByName("GroupLegs").rotateOnAxis(new THREE.Vector3(1,0,0), rotation);
+    }
+}
 
 function move_up() {
     var speed = trailer_speed;
