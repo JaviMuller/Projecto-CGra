@@ -203,11 +203,12 @@ function createRobot(x, y, z) {
     robot = new THREE.Object3D();
 
     robot.name = "Robot";
-    robot.truck = () => {return scene.getObjectByName("GroupLegs").rotation.x == -Math.PI/2 &&
-                    scene.getObjectByName("GroupFeet").rotation.x == -Math.PI/2 &&
-                    scene.getObjectByName("Head").rotation.x == -Math.PI &&
-                    scene.getObjectByName("RightArm").position.x == 6 &&
-                    scene.getObjectByName("LeftArm").position.x == -6;}
+
+    robot.truck = () => { return Math.abs(scene.getObjectByName("GroupLegs").rotation.x - Math.PI/2) < Number.EPSILON &&
+                                 Math.abs(scene.getObjectByName("GroupFeet").rotation.x - Math.PI/2) < Number.EPSILON &&
+                                 Math.abs(scene.getObjectByName("Head").rotation.x - Math.PI) < Number.EPSILON &&
+                                 Math.abs(scene.getObjectByName("RightArm").position.x - 6) < Number.EPSILON &&
+                                 Math.abs(scene.getObjectByName("LeftArm").position.x == -6) < Number.EPSILON; }
 
     addBody(robot, x, y, z);
     const groupLegs = new THREE.Group();
