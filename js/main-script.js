@@ -555,7 +555,7 @@ function extend_head(){
     if(scene.getObjectByName("Head").rotation.x > -Math.PI && scene.getObjectByName("Head").rotation.x <= 0) {
         var rotation = -(end-time)*Math.PI*transformation_speed;
         if((rotation + scene.getObjectByName("Head").rotation.x) < -Math.PI) {
-            scene.getObjectByName("Head").rotation.x = -Math.PI;
+            scene.getObjectByName("Head").rotation.x = -Math.PI + Number.EPSILON/2;
         }
         else {
             scene.getObjectByName("Head").rotateOnAxis(new THREE.Vector3(1,0,0), rotation);
