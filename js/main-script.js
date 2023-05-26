@@ -210,7 +210,7 @@ function createRobot(x, y, z) {
 
     robot.truck = () => { return Math.abs(scene.getObjectByName("GroupLegs").rotation.x + Math.PI/2) < Number.EPSILON &&
                                  Math.abs(scene.getObjectByName("GroupFeet").rotation.x + Math.PI/2) < Number.EPSILON &&
-                                 Math.abs(scene.getObjectByName("Head").rotation.x + Math.PI) < Number.EPSILON &&
+                                 Math.abs(Math.abs(scene.getObjectByName("Head").rotation.x) - Math.PI) < Number.EPSILON &&
                                  Math.abs(scene.getObjectByName("RightArm").position.x - 6) < Number.EPSILON &&
                                  Math.abs(scene.getObjectByName("LeftArm").position.x + 6) < Number.EPSILON; }
 
@@ -225,10 +225,10 @@ function createRobot(x, y, z) {
     addRightArm(robot, x-15, y, z+5);
     addHead(robot, x, y+6, z);
 
-    robot.x_min = () => { robot.getWorldPosition(worldPosition); return worldPosition.x - 8; }
-    robot.x_max = () => { robot.getWorldPosition(worldPosition); return worldPosition.x + 8; }
-    robot.z_min = () => { robot.getWorldPosition(worldPosition); return worldPosition.z - 14; }
-    robot.z_max = () => { robot.getWorldPosition(worldPosition); return worldPosition.z + 32; }
+    robot.x_min = () => { robot.getWorldPosition(worldPosition); return worldPosition.x - 14; }
+    robot.x_max = () => { robot.getWorldPosition(worldPosition); return worldPosition.x + 14; }
+    robot.z_min = () => { robot.getWorldPosition(worldPosition); return worldPosition.z - 12; }
+    robot.z_max = () => { robot.getWorldPosition(worldPosition); return worldPosition.z + 44; }
 
     scene.add(robot);
 }
@@ -476,11 +476,12 @@ function handleCollisions() {
 
         trailer.getObjectByName("TrailerCoupling").getWorldPosition(pos_init_trailer);
         robot.getObjectByName("Legs").getWorldPosition(pos_init_truck);
+        pos_init_trailer.z -= 20;
         pos_init_trailer.y = 0;
         pos_init_truck.y = 0;
         
-        collision_animation.direction.addVectors(pos_init_truck, pos_init_trailer.negate()).normalize();
         collision_animation.distance = pos_init_truck.distanceTo(pos_init_trailer);
+        collision_animation.direction.addVectors(pos_init_truck, pos_init_trailer.negate()).normalize();
 
     } else if (collision_animation.distance > trailer_speed*(end-time)) { // Playing animation
         console.log(collision_animation.distance)
