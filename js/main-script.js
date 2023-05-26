@@ -6,13 +6,14 @@ var cameras = [];
 var camera, scene, renderer;
 
 var robot, trailer;
+var worldPosition = new THREE.Vector3();
 
 var geometry, materials, mesh;
 
 var trailer_speed = 0.05;
 
 const SCENE_WIDTH = 250;
-const SCENE_HEIGHT = 100;
+const SCENE_HEIGHT = 150;
 const SCENE_DEPTH = SCENE_WIDTH;
 
 var end = 0;
@@ -48,8 +49,8 @@ const controller = {
     "a": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) contract_feet() } },
     "w": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) extend_legs() } },
     "s": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) contract_legs() } },
-    "e": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) extend_arms() } },    
-    "d": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) contract_arms() } },
+    "e": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) contract_arms() } },    
+    "d": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) extend_arms() } },
     "r": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) extend_head() } },
     "f": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) contract_head() } },
     
@@ -168,31 +169,32 @@ function createTrailer(x, y, z) {
     'use strict';
 
     trailer = new THREE.Object3D();
+    trailer.position.set(x, y, z);
 
     trailer.name = "Trailer";
 
     // Cargo
     geometry = new THREE.BoxGeometry(24, 32, 92);
     mesh = new THREE.Mesh(geometry, materials.lightgray);
-    mesh.position.set(x, y, z);
+    mesh.position.set(0, 0, 0);
     trailer.add(mesh);
 
     // Coupling piece
     geometry = new THREE.CylinderGeometry(4, 4, 2, 16);
-    geometry.name = "TrailerCoupling";
     mesh = new THREE.Mesh(geometry, materials.red);
-    mesh.position.set(x, y-17, z-38);
+    mesh.name = "TrailerCoupling";
+    mesh.position.set(0, -17, -38);
     trailer.add(mesh);
 
-    addWheel(trailer, x-6, y-20, z+18, 90, 90, 0);
-    addWheel(trailer, x+6, y-20, z+18, 90, 90, 0);
-    addWheel(trailer, x-6, y-20, z+34, 90, 90, 0);
-    addWheel(trailer, x+6, y-20, z+34, 90, 90, 0);
+    addWheel(trailer, -6, -20, 18, 90, 90, 0);
+    addWheel(trailer, 6, -20, 18, 90, 90, 0);
+    addWheel(trailer, -6, -20, 34, 90, 90, 0);
+    addWheel(trailer, 6, -20, 34, 90, 90, 0);
     
-    trailer.x_min = -46;
-    trailer.x_max = 46;
-    trailer.z_min = -12;
-    trailer.z_max = 12;
+    trailer.x_min = () => { trailer.getWorldPosition(worldPosition); return worldPosition.x - 12; }
+    trailer.x_max = () => { trailer.getWorldPosition(worldPosition); return worldPosition.x + 12; }
+    trailer.z_min = () => { trailer.getWorldPosition(worldPosition); return worldPosition.z - 46; }
+    trailer.z_max = () => { trailer.getWorldPosition(worldPosition); return worldPosition.z + 46; }
 
     scene.add(trailer);
 }
@@ -203,27 +205,28 @@ function createRobot(x, y, z) {
     robot = new THREE.Object3D();
 
     robot.name = "Robot";
+    robot.position.set(x, y, z);
 
-    robot.truck = () => { return Math.abs(scene.getObjectByName("GroupLegs").rotation.x - Math.PI/2) < Number.EPSILON &&
-                                 Math.abs(scene.getObjectByName("GroupFeet").rotation.x - Math.PI/2) < Number.EPSILON &&
-                                 Math.abs(scene.getObjectByName("Head").rotation.x - Math.PI) < Number.EPSILON &&
+    robot.truck = () => { return Math.abs(scene.getObjectByName("GroupLegs").rotation.x + Math.PI/2) < Number.EPSILON &&
+                                 Math.abs(scene.getObjectByName("GroupFeet").rotation.x + Math.PI/2) < Number.EPSILON &&
+                                 Math.abs(scene.getObjectByName("Head").rotation.x + Math.PI) < Number.EPSILON &&
                                  Math.abs(scene.getObjectByName("RightArm").position.x - 6) < Number.EPSILON &&
-                                 Math.abs(scene.getObjectByName("LeftArm").position.x == -6) < Number.EPSILON; }
+                                 Math.abs(scene.getObjectByName("LeftArm").position.x + 6) < Number.EPSILON; }
 
-    addBody(robot, x, y, z);
+    addBody(robot, 0, 0, 0);
     const groupLegs = new THREE.Group();
     groupLegs.name = "GroupLegs";
     robot.add(groupLegs);
     groupLegs.position.set(0,-17, 2);
-    addLegs(groupLegs, x, y-1 , z-2);
-    addLeftArm(robot, x+15, y, z+5);
-    addRightArm(robot, x-15, y, z+5);
-    addHead(robot, x, y+6, z);
-
-    robot.x_min = -14;
-    robot.x_max = 12;
-    robot.z_min = -12;
-    robot.z_max = 8;
+    addLegs(groupLegs, 0, -1 , -2);
+    addLeftArm(robot, 15, 0, 5);
+    addRightArm(robot, -15, 0, 5);
+    addHead(robot, 0, 6, 0);
+    
+    robot.x_min = () => { robot.getWorldPosition(worldPosition); return worldPosition.x - 8; }
+    robot.x_max = () => { robot.getWorldPosition(worldPosition); return worldPosition.x + 8; }
+    robot.z_min = () => { robot.getWorldPosition(worldPosition); return worldPosition.z - 14; }
+    robot.z_max = () => { robot.getWorldPosition(worldPosition); return worldPosition.z + 12; }
 
     scene.add(robot);
 }
@@ -453,10 +456,10 @@ function addRightArm(obj, x, y, z) {
 //////////////////////
 function checkCollisions() {
     'use strict';
-    return robot.x_max > trailer.x_min &&
-           robot.x_min < trailer.x_max &&
-           robot.z_max < trailer.z_min &&
-           robot.z_min > trailer.z_max;
+    return robot.x_max() > trailer.x_min() &&
+           robot.x_min() < trailer.x_max() &&
+           robot.z_max() > trailer.z_min() &&
+           robot.z_min() < trailer.z_max();
 }
 
 ///////////////////////
@@ -468,8 +471,10 @@ function handleCollisions() {
         collision_animation.playing = true;
         collision_animation.progress = 0;
 
-        var pos_init_trailer = trailer.getObjectByName("TrailerCoupling").getWorldPosition();
-        var pos_init_truck = robot.getObjectByName("Legs").getWorldPosition();
+        var pos_init_trailer = new THREE.Vector3();
+        trailer.getObjectByName("TrailerCoupling").getWorldPosition(pos_init_trailer);
+        var pos_init_truck = new THREE.Vector3();
+        robot.getObjectByName("Legs").getWorldPosition(pos_init_truck);
         
         collision_animation.direction.addVectors(pos_init_truck, pos_init_trailer.negate()).normalize();
         collision_animation.distance = pos_init_truck.distanceTo(pos_init_trailer);
@@ -502,7 +507,7 @@ function contract_feet(){
     if(scene.getObjectByName("GroupFeet").rotation.x < 0) {
         var rotation = (end-time)*Math.PI/1800;
         if((rotation + scene.getObjectByName("GroupFeet").rotation.x) > 0) {
-            scene.getObjectByName("GroupLFeet").rotation.x = 0;
+            scene.getObjectByName("GroupFeet").rotation.x = 0;
         }
         else {
             scene.getObjectByName("GroupFeet").rotateOnAxis(new THREE.Vector3(1,0,0), rotation);
@@ -543,7 +548,7 @@ function contract_arms(){
 }
 function extend_head(){
     if(scene.getObjectByName("Head").rotation.x > -Math.PI && scene.getObjectByName("Head").rotation.x <= 0) {
-        var rotation = -(end-time)*Math.PI/1800;
+        var rotation = -(end-time)*Math.PI/1600;
         if((rotation + scene.getObjectByName("Head").rotation.x) < -Math.PI) {
             scene.getObjectByName("Head").rotation.x = -Math.PI;
         }
@@ -553,9 +558,8 @@ function extend_head(){
     }
 }
 function contract_head(){
-    console.log(scene.getObjectByName("Head").rotation.x);
     if(scene.getObjectByName("Head").rotation.x < 0) {
-        var rotation = (end-time)*Math.PI/1800;
+        var rotation = (end-time)*Math.PI/1600;
         if((rotation + scene.getObjectByName("Head").rotation.x) > 0) {
             scene.getObjectByName("Head").rotation.x = 0;
         }
@@ -655,7 +659,7 @@ function init() {
     createCameras();
     camera = cameras[0];
     createRobot(0, -5, 0);
-    createTrailer(0,0,40);
+    createTrailer(0,0,100);
     time = Date.now()
     render();
 
