@@ -95,9 +95,6 @@ function createScene() {
     scene = new THREE.Scene();
 
     scene.background = new THREE.Color(cyan);
-
-    scene.add(new THREE.AxisHelper(10));
-
 }
 
 //////////////////////
