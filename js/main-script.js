@@ -8,9 +8,11 @@ var camera, scene, renderer;
 var robot, trailer;
 var worldPosition = new THREE.Vector3();
 
-var geometry, materials, mesh;
+var geometry, mesh;
 
 var trailer_speed = 0.05;
+
+var transformation_speed = 1/900;
 
 var vector = new THREE.Vector3();
 
@@ -69,7 +71,7 @@ var lightgray = 0xbbbbbb;
 
 var time;
 
-materials = {
+var materials = {
     black: new THREE.MeshBasicMaterial({ color: black, wireframe: false }),
     red: new THREE.MeshBasicMaterial({ color: red, wireframe: false }),
     yellow: new THREE.MeshBasicMaterial({ color: yellow, wireframe: false }),
@@ -497,7 +499,7 @@ function handleCollisions() {
 //////////// 
 function extend_feet(){
     if(scene.getObjectByName("GroupFeet").rotation.x > -Math.PI/2) {
-        var rotation = -(end-time)*Math.PI/1800;
+        var rotation = -(end-time)*Math.PI/2*transformation_speed;
         if((rotation + scene.getObjectByName("GroupFeet").rotation.x) < -Math.PI/2) {
             scene.getObjectByName("GroupFeet").rotation.x = -Math.PI/2;
         }
@@ -508,7 +510,7 @@ function extend_feet(){
 }
 function contract_feet(){
     if(scene.getObjectByName("GroupFeet").rotation.x < 0) {
-        var rotation = (end-time)*Math.PI/1800;
+        var rotation = (end-time)*Math.PI/2*(transformation_speed);
         if((rotation + scene.getObjectByName("GroupFeet").rotation.x) > 0) {
             scene.getObjectByName("GroupFeet").rotation.x = 0;
         }
@@ -519,14 +521,14 @@ function contract_feet(){
 }
 function extend_arms(){
     if(scene.getObjectByName("RightArm").position.x > 0) {
-        var translation = -0.05*(end-time);
+        var translation = -6*transformation_speed*(end-time);
         if(translation + scene.getObjectByName("RightArm").position.x < 0) {
             translation = (0 - scene.getObjectByName("RightArm").position.x);
         }
         scene.getObjectByName("RightArm").translateX(translation);
     }
     if(scene.getObjectByName("LeftArm").position.x < 0) {
-        var translation = -0.05*(end-time);
+        var translation = -6*transformation_speed*(end-time);
         if(-translation + scene.getObjectByName("LeftArm").position.x > 0) {
             translation = (0 + scene.getObjectByName("LeftArm").position.x);
         }   
@@ -535,14 +537,14 @@ function extend_arms(){
 }
 function contract_arms(){
     if(scene.getObjectByName("RightArm").position.x < 6) {
-        var translation = 0.05*(end-time);
+        var translation = 6*transformation_speed*(end-time);
         if(translation + scene.getObjectByName("RightArm").position.x > 6) {
             translation = (6 - scene.getObjectByName("RightArm").position.x);
         }
         scene.getObjectByName("RightArm").translateX(translation);   
     }
     if(scene.getObjectByName("LeftArm").position.x > -6) {
-        var translation = 0.05*(end-time);
+        var translation = 6*transformation_speed*(end-time);
         if(-translation + scene.getObjectByName("LeftArm").position.x < -6) {
             translation = (6 + scene.getObjectByName("LeftArm").position.x);
         }
@@ -551,7 +553,7 @@ function contract_arms(){
 }
 function extend_head(){
     if(scene.getObjectByName("Head").rotation.x > -Math.PI && scene.getObjectByName("Head").rotation.x <= 0) {
-        var rotation = -(end-time)*Math.PI/1600;
+        var rotation = -(end-time)*Math.PI*transformation_speed;
         if((rotation + scene.getObjectByName("Head").rotation.x) < -Math.PI) {
             scene.getObjectByName("Head").rotation.x = -Math.PI;
         }
@@ -562,7 +564,7 @@ function extend_head(){
 }
 function contract_head(){
     if(scene.getObjectByName("Head").rotation.x < 0) {
-        var rotation = (end-time)*Math.PI/1600;
+        var rotation = (end-time)*Math.PI*transformation_speed;
         if((rotation + scene.getObjectByName("Head").rotation.x) > 0) {
             scene.getObjectByName("Head").rotation.x = 0;
         }
