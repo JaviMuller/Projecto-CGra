@@ -35,7 +35,6 @@ const controller = {
     "3": { pressed: false, function: () => { camera = cameras[2]; controller["3"].pressed = false; } },
     "4": { pressed: false, function: () => { camera = cameras[3]; controller["4"].pressed = false; } },
     "5": { pressed: false, function: () => { camera = cameras[4]; controller["5"].pressed = false; } },
-
     "6": { pressed: false, function: () => { 
                             Object.keys(materials).forEach((e) =>
                                 materials[e].wireframe = !materials[e].wireframe
@@ -43,7 +42,6 @@ const controller = {
                             controller["6"].pressed = false;
                         }
         },
-
     "7": { pressed: false, function: () => { if(coupled) uncoupleTrailer(); }},
 
     "Q": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) extend_feet() } },
@@ -187,11 +185,13 @@ function createTrailer(x, y, z) {
     mesh.position.set(0, -17, -38);
     trailer.add(mesh);
 
+    //Trailer Wheels
     addWheel(trailer, -6, -20, 18, 90, 90, 0);
     addWheel(trailer, 6, -20, 18, 90, 90, 0);
     addWheel(trailer, -6, -20, 34, 90, 90, 0);
     addWheel(trailer, 6, -20, 34, 90, 90, 0);
     
+    //Bounding Box
     trailer.x_min = () => { trailer.getWorldPosition(worldPosition); return worldPosition.x - 12; }
     trailer.x_max = () => { trailer.getWorldPosition(worldPosition); return worldPosition.x + 12; }
     trailer.z_min = () => { trailer.getWorldPosition(worldPosition); return worldPosition.z - 46; }
@@ -310,6 +310,7 @@ function addLegs(obj, x, y, z) {
 
     legs.name = "Legs";
 
+    // Wheels
     addWheel(legs, x+8, y-17, z-1, 0, 90, 90);
     addWheel(legs, x+8, y-26, z-1, 0, 90, 90);
     addWheel(legs, x-8, y-17, z-1, 0, 90, 90);
@@ -346,11 +347,11 @@ function addLegs(obj, x, y, z) {
     legs.add(mesh);
     geometry = new THREE.CylinderGeometry(2.5, 2.5, 6, 16);
 
+    // Feet
     const groupFeet = new THREE.Group();
     groupFeet.name = "GroupFeet";
     groupFeet.position.set(x,y-33,z);
     addFeet(groupFeet, x, y+6, z+1);
-
     obj.add(groupFeet);
 
     obj.add(legs);
@@ -363,6 +364,7 @@ function addFeet(obj, x, y, z) {
 
     feet.name = "Feet";
 
+    // Right and Left foot
     geometry = new THREE.BoxGeometry(12, 6, 8);
     mesh = new THREE.Mesh(geometry, materials.blue);
     mesh.position.set(x+6, y, z);
@@ -379,7 +381,6 @@ function addLeftArm(obj, x, y, z) {
     'use strict';
 
     var leftArm = new THREE.Object3D();
-
     leftArm.name = "LeftArm";
 
     // Top joint
