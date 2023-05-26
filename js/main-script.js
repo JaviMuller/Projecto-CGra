@@ -12,6 +12,8 @@ var geometry, materials, mesh;
 
 var trailer_speed = 0.05;
 
+var vector = new THREE.Vector3();
+
 const SCENE_WIDTH = 250;
 const SCENE_HEIGHT = 150;
 const SCENE_DEPTH = SCENE_WIDTH;
@@ -482,13 +484,10 @@ function handleCollisions() {
         collision_animation.direction.addVectors(pos_init_truck, pos_init_trailer.negate()).normalize();
 
     } else if (collision_animation.distance > trailer_speed*(end-time)) { // Playing animation
-        console.log(collision_animation.distance)
         trailer.translateOnAxis(collision_animation.direction, trailer_speed*(end-time));
         collision_animation.distance-=trailer_speed*(end-time);
 
     } else { // Animation finished
-        console.log(collision_animation.distance);
-        console.log("hi");
         trailer.translateOnAxis(collision_animation.direction, collision_animation.distance);
         collision_animation.playing = false;
         coupled = true;
@@ -598,32 +597,21 @@ function contract_legs(){
 }
 
 function move_up() {
-    var speed = trailer_speed;
-    if(controller["ARROWLEFT"].pressed ^ controller["ARROWRIGHT"].pressed) {
-        speed = Math.sqrt(2)/2*speed;
-    }
-    scene.getObjectByName("Trailer").translateZ(speed*(end-time));
+    vector.z += 1;
 }
 function move_down() {
-    var speed = -trailer_speed;
-    if(controller["ARROWLEFT"].pressed ^ controller["ARROWRIGHT"].pressed) {
-        speed = Math.sqrt(2)/2*speed;
-    }
-    scene.getObjectByName("Trailer").translateZ(speed*(end-time));
+    vector.z -= 1;
 }
 function move_right() {
-    var speed = -trailer_speed;
-    if(controller["ARROWUP"].pressed ^ controller["ARROWDOWN"].pressed) {
-        speed = Math.sqrt(2)/2*speed;
-    }
-    scene.getObjectByName("Trailer").translateX(speed*(end-time));
+    vector.x += 1;
 }
 function move_left() {
-    var speed = trailer_speed;
-    if(controller["ARROWUP"].pressed ^ controller["ARROWDOWN"].pressed) {
-        speed = Math.sqrt(2)/2*speed;
-    }
-    scene.getObjectByName("Trailer").translateX(speed*(end-time));
+    vector.x -= 1;
+}
+
+function move_trailer() {
+    vector.normalize();
+    trailer.translateOnAxis(vector,trailer_speed*(end-time));
 }
 
 function uncoupleTrailer() {
@@ -634,10 +622,12 @@ function uncoupleTrailer() {
 function update() {
     'use strict';
     end = Date.now();
+    vector.set(0,0,0);
     // Collision handling
     if (collision_animation.playing || (robot.truck() && checkCollisions() && !coupled)) { handleCollisions(); }
     // Event handling
     Object.keys(controller).forEach((e) => { if (controller[e].pressed) { controller[e].function(); }})
+    move_trailer();
     time = end;
     
 }
