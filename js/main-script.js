@@ -603,10 +603,10 @@ function move_down() {
     vector.z -= 1;
 }
 function move_right() {
-    vector.x += 1;
+    vector.x -= 1;
 }
 function move_left() {
-    vector.x -= 1;
+    vector.x += 1;
 }
 
 function move_trailer() {
@@ -657,8 +657,6 @@ function init() {
     createRobot(0, -5, 0);
     createTrailer(0,-5,100);
     time = Date.now()
-    render();
-
 }
 
 /////////////////////
