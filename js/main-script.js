@@ -21,10 +21,8 @@ var end = 0;
 
 var collision_animation = {
     playing: false,
-    progress: 0,
     direction: new THREE.Vector3(0, 0, 0),
-    distance: 0,
-    steps: 100
+    distance: 0
 }
 
 var coupled = false;
@@ -46,19 +44,19 @@ const controller = {
 
     "7": { pressed: false, function: () => { if(coupled) uncoupleTrailer(); }},
 
-    "x": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) extend_feet() } },
-    "a": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) contract_feet() } },
-    "w": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) extend_legs() } },
-    "s": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) contract_legs() } },
-    "e": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) contract_arms() } },    
-    "d": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) extend_arms() } },
-    "r": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) extend_head() } },
-    "f": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) contract_head() } },
+    "Q": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) extend_feet() } },
+    "A": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) contract_feet() } },
+    "W": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) extend_legs() } },
+    "S": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) contract_legs() } },
+    "E": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) contract_arms() } },    
+    "D": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) extend_arms() } },
+    "R": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) extend_head() } },
+    "F": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) contract_head() } },
     
-    "ArrowUp": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) move_up() } },
-    "ArrowDown": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) move_down() } },
-    "ArrowLeft": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) move_left() } },
-    "ArrowRight": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) move_right() } },
+    "ARROWUP": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) move_up() } },
+    "ARROWDOWN": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) move_down() } },
+    "ARROWLEFT": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) move_left() } },
+    "ARROWRIGHT": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) move_right() } },
 }
 
 var cyan = 0xe3e5e6;
@@ -601,28 +599,28 @@ function contract_legs(){
 
 function move_up() {
     var speed = trailer_speed;
-    if(controller["ArrowLeft"].pressed ^ controller["ArrowRight"].pressed) {
+    if(controller["ARROWLEFT"].pressed ^ controller["ARROWRIGHT"].pressed) {
         speed = Math.sqrt(2)/2*speed;
     }
     scene.getObjectByName("Trailer").translateZ(speed*(end-time));
 }
 function move_down() {
     var speed = -trailer_speed;
-    if(controller["ArrowLeft"].pressed ^ controller["ArrowRight"].pressed) {
+    if(controller["ARROWLEFT"].pressed ^ controller["ARROWRIGHT"].pressed) {
         speed = Math.sqrt(2)/2*speed;
     }
     scene.getObjectByName("Trailer").translateZ(speed*(end-time));
 }
 function move_right() {
     var speed = -trailer_speed;
-    if(controller["ArrowUp"].pressed ^ controller["ArrowDown"].pressed) {
+    if(controller["ARROWUP"].pressed ^ controller["ARROWDOWN"].pressed) {
         speed = Math.sqrt(2)/2*speed;
     }
     scene.getObjectByName("Trailer").translateX(speed*(end-time));
 }
 function move_left() {
     var speed = trailer_speed;
-    if(controller["ArrowUp"].pressed ^ controller["ArrowDown"].pressed) {
+    if(controller["ARROWUP"].pressed ^ controller["ARROWDOWN"].pressed) {
         speed = Math.sqrt(2)/2*speed;
     }
     scene.getObjectByName("Trailer").translateX(speed*(end-time));
@@ -694,12 +692,12 @@ function onResize() {
 /* KEY DOWN CALLBACK */
 ///////////////////////
 document.addEventListener("keydown", (e) => {
-        if (controller[e.key]) { controller[e.key].pressed = true; }
+        if (controller[e.key.toUpperCase()]) { controller[e.key.toUpperCase()].pressed = true; }
     });
 
 ///////////////////////
 /* KEY UP CALLBACK */
 ///////////////////////
 document.addEventListener("keyup", (e) => {
-        if (controller[e.key]) { controller[e.key].pressed = false; }
+        if (controller[e.key.toUpperCase()]) { controller[e.key.toUpperCase()].pressed = false; }
     });
