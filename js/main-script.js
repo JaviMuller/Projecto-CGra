@@ -15,6 +15,7 @@ var trailer_speed = 0.05;
 const SCENE_WIDTH = 250;
 const SCENE_HEIGHT = 150;
 const SCENE_DEPTH = SCENE_WIDTH;
+var worldPosition = new THREE.Vector3();
 
 var end = 0;
 
@@ -45,7 +46,7 @@ const controller = {
 
     "7": { pressed: false, function: () => { if(coupled) uncoupleTrailer(); }},
 
-    "q": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) extend_feet() } },
+    "x": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) extend_feet() } },
     "a": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) contract_feet() } },
     "w": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) extend_legs() } },
     "s": { pressed: false, function: () => { if(!collision_animation.playing && !coupled) contract_legs() } },
@@ -213,20 +214,21 @@ function createRobot(x, y, z) {
                                  Math.abs(scene.getObjectByName("RightArm").position.x - 6) < Number.EPSILON &&
                                  Math.abs(scene.getObjectByName("LeftArm").position.x + 6) < Number.EPSILON; }
 
-    addBody(robot, 0, 0, 0);
+    addBody(robot, x, y, z);
     const groupLegs = new THREE.Group();
     groupLegs.name = "GroupLegs";
     robot.add(groupLegs);
     groupLegs.position.set(0,-17, 2);
-    addLegs(groupLegs, 0, -1 , -2);
-    addLeftArm(robot, 15, 0, 5);
-    addRightArm(robot, -15, 0, 5);
-    addHead(robot, 0, 6, 0);
-    
+
+    addLegs(groupLegs, x, y-1 , z-2);
+    addLeftArm(robot, x+15, y, z+5);
+    addRightArm(robot, x-15, y, z+5);
+    addHead(robot, x, y+6, z);
+
     robot.x_min = () => { robot.getWorldPosition(worldPosition); return worldPosition.x - 8; }
     robot.x_max = () => { robot.getWorldPosition(worldPosition); return worldPosition.x + 8; }
     robot.z_min = () => { robot.getWorldPosition(worldPosition); return worldPosition.z - 14; }
-    robot.z_max = () => { robot.getWorldPosition(worldPosition); return worldPosition.z + 12; }
+    robot.z_max = () => { robot.getWorldPosition(worldPosition); return worldPosition.z + 32; }
 
     scene.add(robot);
 }
@@ -469,21 +471,26 @@ function handleCollisions() {
     'use strict';
     if (!collision_animation.playing) {
         collision_animation.playing = true;
-        collision_animation.progress = 0;
-
-        var pos_init_trailer = new THREE.Vector3();
-        trailer.getObjectByName("TrailerCoupling").getWorldPosition(pos_init_trailer);
         var pos_init_truck = new THREE.Vector3();
+        var pos_init_trailer = new THREE.Vector3();
+
+        trailer.getObjectByName("TrailerCoupling").getWorldPosition(pos_init_trailer);
         robot.getObjectByName("Legs").getWorldPosition(pos_init_truck);
+        pos_init_trailer.y = 0;
+        pos_init_truck.y = 0;
         
         collision_animation.direction.addVectors(pos_init_truck, pos_init_trailer.negate()).normalize();
         collision_animation.distance = pos_init_truck.distanceTo(pos_init_trailer);
 
-    } else if (collision_animation.progress <= 1) { // Playing animation
-        trailer.translateOnAxis(collision_animation.direction, collision_animation.distance/steps);
-        collision_animation.progress += 1/steps;
+    } else if (collision_animation.distance > trailer_speed*(end-time)) { // Playing animation
+        console.log(collision_animation.distance)
+        trailer.translateOnAxis(collision_animation.direction, trailer_speed*(end-time));
+        collision_animation.distance-=trailer_speed*(end-time);
 
     } else { // Animation finished
+        console.log(collision_animation.distance);
+        console.log("hi");
+        trailer.translateOnAxis(collision_animation.direction, collision_animation.distance);
         collision_animation.playing = false;
         coupled = true;
     }
@@ -621,7 +628,7 @@ function move_left() {
 }
 
 function uncoupleTrailer() {
-    trailer.translateZ(25);
+    trailer.translateZ(100);
     coupled = false;
 }
 
@@ -629,7 +636,7 @@ function update() {
     'use strict';
     end = Date.now();
     // Collision handling
-    if (collision_animation.playing || (robot.truck() && checkCollisions())) { handleCollisions(); }
+    if (collision_animation.playing || (robot.truck() && checkCollisions() && !coupled)) { handleCollisions(); }
     // Event handling
     Object.keys(controller).forEach((e) => { if (controller[e].pressed) { controller[e].function(); }})
     time = end;
@@ -659,7 +666,7 @@ function init() {
     createCameras();
     camera = cameras[0];
     createRobot(0, -5, 0);
-    createTrailer(0,0,100);
+    createTrailer(0,-5,100);
     time = Date.now()
     render();
 
