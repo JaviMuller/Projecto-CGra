@@ -1,9 +1,10 @@
 //////////////////////
 /* GLOBAL VARIABLES */
 //////////////////////
+var cameras = []; 
+var camera, scene, renderer;
 
 var sides = 12;
-
 
 var materials = {
     black: new THREE.MeshBasicMaterial({ color: black, wireframe: false }),
@@ -12,6 +13,24 @@ var materials = {
     gray: new THREE.MeshBasicMaterial({ color: gray, wireframe: false }),
     blue: new THREE.MeshBasicMaterial({ color: blue, wireframe: false }),
     lightgray: new THREE.MeshBasicMaterial({ color: lightgray, wireframe: false }),
+}
+
+const controller = {
+    // Lights
+    "P": { pressed: false, function: () => { toggle_point_light() } },
+    "S": { pressed: false, function: () => { toggle_spot_light() } },
+    "R": { pressed: false, function: () => { toggle_material_lightning() } },
+    
+    // Textures
+    "Q": { pressed: false, function: () => { toggle_texture("Gouraud") } },
+    "W": { pressed: false, function: () => { toggle_texture("Phong") } },
+    "E": { pressed: false, function: () => { toggle_texture("Cartoon") } },
+
+    // Movement
+    "ARROWUP": { pressed: false, function: () => { rotate_clockwise() } },
+    "ARROWDOWN": { pressed: false, function: () => { rotate_counter_clockwise() } },
+    "ARROWLEFT": { pressed: false, function: () => { move_left() } },
+    "ARROWRIGHT": { pressed: false, function: () => { move_right() } },
 }
 
 /////////////////////
@@ -25,7 +44,9 @@ function createScene(){
 //////////////////////
 /* CREATE CAMERA(S) */
 //////////////////////
-
+function createCameras() {
+    'use strict';
+}
 
 /////////////////////
 /* CREATE LIGHT(S) */
@@ -179,7 +200,7 @@ function handleCollisions(){
 ////////////
 function update(){
     'use strict';
-
+    Object.keys(controller).forEach((e) => { if (controller[e].pressed) { controller[e].function(); }})
 }
 
 /////////////
@@ -187,7 +208,7 @@ function update(){
 /////////////
 function render() {
     'use strict';
-
+    renderer.render(scene, camera);
 }
 
 ////////////////////////////////
@@ -195,7 +216,13 @@ function render() {
 ////////////////////////////////
 function init() {
     'use strict';
-
+    renderer = new THREE.WebGLRenderer({
+        antialias: true
+    });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+    renderer.xr.enabled=true;
+    document.body.appendChild(VRButton.createButton(renderer));
 }
 
 /////////////////////
@@ -203,29 +230,33 @@ function init() {
 /////////////////////
 function animate() {
     'use strict';
-
+    update();
+    render();
+    requestAnimationFrame(animate);
 }
 
 ////////////////////////////
 /* RESIZE WINDOW CALLBACK */
 ////////////////////////////
-function onResize() { 
-    'use strict';
+function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
 
+    renderer.setSize( window.innerWidth, window.innerHeight );
 }
+
+window.addEventListener("resize", onWindowResize);
 
 ///////////////////////
 /* KEY DOWN CALLBACK */
 ///////////////////////
-function onKeyDown(e) {
-    'use strict';
-
-}
+document.addEventListener("keydown", (e) => {
+    if (controller[e.key]) { controller[e.key].pressed = true; }
+});
 
 ///////////////////////
 /* KEY UP CALLBACK */
 ///////////////////////
-function onKeyUp(e){
-    'use strict';
-
-}
+document.addEventListener("keyup", (e) => {
+    if (controller[e.key]) { controller[e.key].pressed = false; }
+});

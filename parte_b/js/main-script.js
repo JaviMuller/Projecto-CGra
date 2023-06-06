@@ -63,7 +63,7 @@ const controller = {
 
 var cyan = 0xe3e5e6;
 var blue = 0x1332a1;
-var red = 0xeb1e1e
+var red = 0xeb1e1e;
 var yellow = 0xdbb809;
 var gray = 0x808080;
 var black = 0x202020;
