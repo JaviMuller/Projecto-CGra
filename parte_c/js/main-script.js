@@ -4,6 +4,8 @@
 var cameras = []; 
 var camera, scene, renderer;
 
+var geometry, mesh;
+
 var sides = 12;
 
 var cyan = 0xe3e5e6;
@@ -15,12 +17,12 @@ var black = 0x202020;
 var lightgray = 0xbbbbbb;
 
 var materials = {
-    black: new THREE.MeshBasicMaterial({ color: black, wireframe: false }),
-    red: new THREE.MeshBasicMaterial({ color: red, wireframe: false }),
-    yellow: new THREE.MeshBasicMaterial({ color: yellow, wireframe: false }),
-    gray: new THREE.MeshBasicMaterial({ color: gray, wireframe: false }),
-    blue: new THREE.MeshBasicMaterial({ color: blue, wireframe: false }),
-    lightgray: new THREE.MeshBasicMaterial({ color: lightgray, wireframe: false }),
+    black: new THREE.MeshPhongMaterial({ color: black, wireframe: false }),
+    red: new THREE.MeshPhongMaterial({ color: red, wireframe: false }),
+    yellow: new THREE.MeshPhongMaterial({ color: yellow, wireframe: false }),
+    gray: new THREE.MeshPhongMaterial({ color: gray, wireframe: false }),
+    blue: new THREE.MeshPhongMaterial({ color: blue, wireframe: false }),
+    lightgray: new THREE.MeshPhongMaterial({ color: lightgray, wireframe: false }),
 }
 
 const controller = {
@@ -47,7 +49,7 @@ const controller = {
 function createScene(){
     'use strict';
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000);
+    scene.background = new THREE.Color(black);
 }
 
 //////////////////////
@@ -57,6 +59,8 @@ function createCamera() {
     'use strict';
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
     camera.position.set(0, 0, 500);
+    camera.lookAt(0,0,0);
+    scene.add(camera);
 }
 
 /////////////////////
@@ -362,11 +366,12 @@ function init() {
 
     createScene();
     createCamera();
+    createAmbientLight();
 
-    //createOvni();
+    createOvni(0,0,0);
     //createTrees();
     //createHouse();
-    createField();
+    //createField();
 }
 
 /////////////////////
