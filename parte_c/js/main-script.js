@@ -58,7 +58,7 @@ function createScene(){
 function createCamera() {
     'use strict';
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
-    camera.position.set(0, 0, 500);
+    camera.position.set(0, 200, 500);
     camera.lookAt(0,0,0);
     scene.add(camera);
 }
@@ -318,15 +318,16 @@ function createHouse(x, y, z) {
 }
 
 function createField(x, y, z) {
-    var terrain_texture = THREE.ImageUtils.loadTexture('textures/heightmap.png');
-    var field_texture = THREE.ImageUtils.loadTexture('textures/grass.png');
+    var textureLoader = new THREE.TextureLoader();
+    var terrain_texture = textureLoader.load('assets/heightmap.png');
+    var field_texture = textureLoader.load('assets/grass.png');
     field_texture.wrapS = field_texture.wrapT = THREE.RepeatWrapping;
+    field_texture.repeat.set( 20, 20);
 
     var material = new THREE.ShaderMaterial({
         displacementMap: terrain_texture,
         displacementScale: 1,
-        map: field_texture,
-        lights:true
+        map: field_texture
     });
 
     geometry = new THREE.PlaneGeometry( 1000, 1000, 200, 200 );
@@ -371,7 +372,7 @@ function init() {
     createOvni(0,0,0);
     //createTrees();
     //createHouse();
-    //createField();
+    createField(0, 0, 0);
 }
 
 /////////////////////
