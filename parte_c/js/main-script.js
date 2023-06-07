@@ -6,6 +6,14 @@ var camera, scene, renderer;
 
 var sides = 12;
 
+var cyan = 0xe3e5e6;
+var blue = 0x1332a1;
+var red = 0xeb1e1e
+var yellow = 0xdbb809;
+var gray = 0x808080;
+var black = 0x202020;
+var lightgray = 0xbbbbbb;
+
 var materials = {
     black: new THREE.MeshBasicMaterial({ color: black, wireframe: false }),
     red: new THREE.MeshBasicMaterial({ color: red, wireframe: false }),
@@ -38,19 +46,28 @@ const controller = {
 /////////////////////
 function createScene(){
     'use strict';
-
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x000000);
 }
 
 //////////////////////
 /* CREATE CAMERA(S) */
 //////////////////////
-function createCameras() {
+function createCamera() {
     'use strict';
+    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
+    camera.position.set(0, 0, 500);
 }
 
 /////////////////////
 /* CREATE LIGHT(S) */
 /////////////////////
+function createAmbientLight() {
+    'use strict';
+    var ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
+}
+
 
 ////////////////////////
 /* CREATE OBJECT3D(S) */
@@ -296,20 +313,24 @@ function createHouse(x, y, z) {
     scene.add(house);
 }
 
-//////////////////////
-/* CHECK COLLISIONS */
-//////////////////////
-function checkCollisions(){
-    'use strict';
+function createField(x, y, z) {
+    var terrain_texture = THREE.ImageUtils.loadTexture('textures/heightmap.png');
+    var field_texture = THREE.ImageUtils.loadTexture('textures/grass.png');
+    field_texture.wrapS = field_texture.wrapT = THREE.RepeatWrapping;
 
-}
+    var material = new THREE.ShaderMaterial({
+        displacementMap: terrain_texture,
+        displacementScale: 1,
+        map: field_texture,
+        lights:true
+    });
 
-///////////////////////
-/* HANDLE COLLISIONS */
-///////////////////////
-function handleCollisions(){
-    'use strict';
+    geometry = new THREE.PlaneGeometry( 1000, 1000, 200, 200 );
 
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.rotation.x = -Math.PI / 2;
+    mesh.position.set(0, 0, 0);
+    scene.add(mesh);
 }
 
 ////////////
@@ -338,8 +359,14 @@ function init() {
     });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
-    renderer.xr.enabled=true;
-    document.body.appendChild(VRButton.createButton(renderer));
+
+    createScene();
+    createCamera();
+
+    //createOvni();
+    //createTrees();
+    //createHouse();
+    createField();
 }
 
 /////////////////////
