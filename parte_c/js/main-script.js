@@ -158,25 +158,142 @@ function createHouse(x, y, z) {
     var house = new THREE.Object3D();
     house.name = "House";
 
-    const verticesOfCube = [
-        0, 0, 0,        0, 1, 0,        17, 0, 0,       17, 1, 0,
-        7, 1, 0,        7.5, 0, 0,      9.5, 0, 0,      10, 1, 0,
-        7.5, 3.5, 0,    9.5, 3.5, 0,    0, 6, 0,        17, 6, 0,
-        0, 0, 7,        17, 0, 7,       0, 8, 3.5,      17, 8, 3.5,
-        0, 1, 7,        17, 1, 7,       17, 6, 7,       0, 6, 7,
-        7, 0, 4,        10, 0, 4
+
+    geom = new THREE.BufferGeometry();
+
+    verticesOfCube = new Float32Array( [
+        0, 0, 0,        7.5, 0, 0,      7.5, 1, 0,      7, 1, 0,        0, 1, 0,
+        7, 4, 0,        7.5, 4, 0,      7.5, 3.5, 0,    9.5, 3.5, 0,    10, 4, 0,
+        10, 1, 0,       9.5, 0, 0,      17, 1, 0,       17, 0, 0,       17, 6, 0,
+        0, 6, 0,        15, 4, 0,       15, 2.5, 0,     13, 2.5, 0,     13, 4, 0,
+        2, 4, 0,        4, 4, 0,        4, 2.5, 0,      2, 2.5, 0,      17, 0, 7,
+        17, 1, 7,       17, 6, 7,       17, 8, 3.5,     17, 4, 4.5,     17, 2.5, 4.5,
+        17, 2.5, 2.5,   17, 4, 2.5,     0, 0, 7,        0, 1, 7,        0, 6, 7,
+        0, 8, 3.5,      0, 4, 4.5,      0, 2.5, 4.5,    0, 2.5, 2.5,    0, 4, 2.5,
+        ] );
+
+    indicesOfFaces = [
+        0, 4, 1,
+        1, 4, 3,
+        1, 3, 2,
+        2, 3, 5,
+        5, 7, 2,
+        5, 6, 7,
+        6, 8, 7,
+        8, 6, 9,
+        8, 9, 10,
+        10, 11, 8,
+        10, 12, 11,
+        12, 13, 11,
+        12, 13, 24,
+        25, 12, 24,
+        0, 32, 4,
+        4, 32, 33,
     ];
 
-    const indicesOfFaces = [
-        0, 12, 16, 1,                           2, 3, 17, 13,
-        0, 1, 4, 20, 21, 7, 3, 2, 6, 9, 8, 5,   5, 6, 9, 8,
-        12, 14, 19,                             13, 15, 18,
-        10, 11, 15, 14,                         15, 14, 19, 18
-    ];
-
-    const geometry = new THREE.PolyhedronGeometry( verticesOfCube, indicesOfFaces, 6, 2 );
-    mesh = new THREE.Mesh(geometry, materials.blue);
+    geom.setIndex( indicesOfFaces );
+    geom.setAttribute ( 'position', new THREE.BufferAttribute( verticesOfCube, 3 ) );
+    material = new THREE.MeshBasicMaterial( { color: 0x0000ff } );
+    mesh = new THREE.Mesh( geom, material );
     house.add(mesh);
+
+    geom = new THREE.BufferGeometry();
+
+    indicesOfFaces = [
+        7, 8, 11,
+        7, 11, 2,
+        2, 11, 1,
+    ];
+
+    geom.setIndex( indicesOfFaces );
+    geom.setAttribute ( 'position', new THREE.BufferAttribute( verticesOfCube, 3 ) );
+    material = new THREE.MeshBasicMaterial( { color: 0x5e2c04 } );
+    mesh = new THREE.Mesh( geom, material );
+    house.add(mesh);
+
+    geom = new THREE.BufferGeometry();
+
+    indicesOfFaces = [
+        14, 12, 17,
+        14, 17, 16,
+        14, 16, 19,
+        14, 19, 9,
+        19, 18, 9,
+        9, 18, 10,
+        18, 12, 10,
+        18, 17, 12,
+        15, 14, 9,
+        15, 9, 5,
+        5, 21, 15,
+        5, 3, 21,
+        21, 3, 22,
+        3, 4, 22,
+        4, 23, 22,
+        20, 23, 4,
+        21, 20, 15,
+        20, 4, 15,
+        30, 12, 25,
+        29, 30, 25,
+        26, 29, 25,
+        28, 29, 26,
+        14, 28, 26,
+        14, 31, 28,
+        14, 30, 31,
+        14, 12, 30,
+        33, 34, 37,
+        34, 36, 37,
+        34, 39, 36,
+        15, 39, 34,
+        15, 4, 39,
+        4, 38, 39,
+        4, 37, 38,
+        37, 4, 33,
+    ];
+
+    geom.setIndex( indicesOfFaces );
+    geom.setAttribute ( 'position', new THREE.BufferAttribute( verticesOfCube, 3 ) );
+    material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+    mesh = new THREE.Mesh( geom, material );
+    house.add(mesh);
+
+    geom = new THREE.BufferGeometry();
+
+    indicesOfFaces = [
+        35, 14, 15,
+        27, 14, 35,
+        14, 26, 27,
+        35, 15, 34,
+    ];
+
+    geom.setIndex( indicesOfFaces );
+    geom.setAttribute ( 'position', new THREE.BufferAttribute( verticesOfCube, 3 ) );
+    material = new THREE.MeshBasicMaterial( { color: 0xed7117 } );
+    mesh = new THREE.Mesh( geom, material );
+    house.add(mesh);
+
+    geom = new THREE.BufferGeometry();
+
+    indicesOfFaces = [
+        16, 18, 19,
+        16, 17, 18,
+        20, 22, 23,
+        22, 20, 21,
+        28, 31, 30,
+        29, 28, 30,
+        39, 38, 36,
+        36, 38, 37,
+    ];
+
+    geom.setIndex( indicesOfFaces );
+    geom.setAttribute ( 'position', new THREE.BufferAttribute( verticesOfCube, 3 ) );
+    material = new THREE.MeshBasicMaterial( { color: 0xaaaaaa } );
+    mesh = new THREE.Mesh( geom, material );
+    house.add(mesh);
+
+
+    house.position.set(x,y,z);
+
+    scene.add(house);
 }
 
 //////////////////////
