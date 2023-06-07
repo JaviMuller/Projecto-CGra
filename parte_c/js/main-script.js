@@ -8,7 +8,10 @@ var geometry, mesh, material;
 
 var textureLoader = new THREE.TextureLoader();
 
-var sides = 12;
+var vector = new THREE.Vector3();
+
+var ovni;
+var pointLights = 12;
 
 var cyan = 0xe3e5e6;
 var blue = 0x1332a1;
@@ -22,6 +25,18 @@ var white = 0xffffff;
 var brown = 0x5e2c04;
 
 var materials = {
+    black: {},
+    red: {},
+    yellow: {},
+    gray: {},
+    blue: {},
+    lightgray: {},
+    orange: {},
+    brown: {},
+    white: {}
+};
+
+var materials_phong = {
     black: new THREE.MeshPhongMaterial({ color: black, wireframe: false }),
     red: new THREE.MeshPhongMaterial({ color: red, wireframe: false }),
     yellow: new THREE.MeshPhongMaterial({ color: yellow, wireframe: false }),
@@ -30,24 +45,60 @@ var materials = {
     lightgray: new THREE.MeshPhongMaterial({ color: lightgray, wireframe: false }),
     orange: new THREE.MeshPhongMaterial({ color: orange, wireframe: false}),
     brown: new THREE.MeshPhongMaterial({ color: brown, wireframe: false}),
-    white: new THREE.MeshPhongMaterial({ color: white, wireframe: false}),
+    white: new THREE.MeshPhongMaterial({ color: white, wireframe: false})
+}
+
+var materials_gouraud = {
+    black: new THREE.MeshLambertMaterial({ color: black, wireframe: false }),
+    red: new THREE.MeshLambertMaterial({ color: red, wireframe: false }),
+    yellow: new THREE.MeshLambertMaterial({ color: yellow, wireframe: false }),
+    gray: new THREE.MeshLambertMaterial({ color: gray, wireframe: false }),
+    blue: new THREE.MeshLambertMaterial({ color: blue, wireframe: false }),
+    lightgray: new THREE.MeshLambertMaterial({ color: lightgray, wireframe: false }),
+    orange: new THREE.MeshLambertMaterial({ color: orange, wireframe: false}),
+    brown: new THREE.MeshLambertMaterial({ color: brown, wireframe: false}),
+    white: new THREE.MeshLambertMaterial({ color: white, wireframe: false})
+}
+
+var materials_cartoon = {
+    black: new THREE.MeshToonMaterial({ color: black, wireframe: false }),
+    red: new THREE.MeshToonMaterial({ color: red, wireframe: false }),
+    yellow: new THREE.MeshToonMaterial({ color: yellow, wireframe: false }),
+    gray: new THREE.MeshToonMaterial({ color: gray, wireframe: false }),
+    blue: new THREE.MeshToonMaterial({ color: blue, wireframe: false }),
+    lightgray: new THREE.MeshToonMaterial({ color: lightgray, wireframe: false }),
+    orange: new THREE.MeshToonMaterial({ color: orange, wireframe: false}),
+    brown: new THREE.MeshToonMaterial({ color: brown, wireframe: false}),
+    white: new THREE.MeshToonMaterial({ color: white, wireframe: false})
+}
+
+var materials_basic = {
+    black: new THREE.MeshBasicMaterial({ color: black, wireframe: false }),
+    red: new THREE.MeshBasicMaterial({ color: red, wireframe: false }),
+    yellow: new THREE.MeshBasicMaterial({ color: yellow, wireframe: false }),
+    gray: new THREE.MeshBasicMaterial({ color: gray, wireframe: false }),
+    blue: new THREE.MeshBasicMaterial({ color: blue, wireframe: false }),
+    lightgray: new THREE.MeshBasicMaterial({ color: lightgray, wireframe: false }),
+    orange: new THREE.MeshBasicMaterial({ color: orange, wireframe: false}),
+    brown: new THREE.MeshBasicMaterial({ color: brown, wireframe: false}),
+    white: new THREE.MeshBasicMaterial({ color: white, wireframe: false})
 }
 
 const controller = {
     // Lights
     "P": { pressed: false, function: () => { toggle_point_light() } },
     "S": { pressed: false, function: () => { toggle_spot_light() } },
-    "R": { pressed: false, function: () => { toggle_material_lightning() } },
     "D": { pressed: false, function: () => { toggle_moon_light() } },
     
     // Textures
     "Q": { pressed: false, function: () => { toggle_texture("Gouraud") } },
     "W": { pressed: false, function: () => { toggle_texture("Phong") } },
     "E": { pressed: false, function: () => { toggle_texture("Cartoon") } },
+    "R": { pressed: false, function: () => { toggle_texture("Basic") } },
 
     // Movement
-    "ARROWUP": { pressed: false, function: () => { rotate_clockwise() } },
-    "ARROWDOWN": { pressed: false, function: () => { rotate_counter_clockwise() } },
+    "ARROWUP": { pressed: false, function: () => { move_far() } },
+    "ARROWDOWN": { pressed: false, function: () => { move_near() } },
     "ARROWLEFT": { pressed: false, function: () => { move_left() } },
     "ARROWRIGHT": { pressed: false, function: () => { move_right() } },
 }
@@ -158,10 +209,10 @@ function createOvni(x,y,z) {
     var sphericalCoord = new THREE.Spherical();
     sphericalCoord.setFromVector3(dist);
 
-    for(let i = 0; i < sides; i++) {
+    for(let i = 0; i < pointLights; i++) {
         dist.setFromSpherical(sphericalCoord);
-        addSmallLight(ovni, x+dist.x, y+dist.y, z+dist.z);
-        sphericalCoord.theta += Math.PI*2/sides;
+        addSmallLight(ovni, dist.x, dist.y, dist.z);
+        sphericalCoord.theta += Math.PI*2/pointLights;
     }
 }
 
@@ -407,6 +458,19 @@ function createSkydome(x, y, z) {
 ////////////
 /* UPDATE */
 ////////////
+function move_far() {
+    vector.z += 1;
+}
+function move_near() {
+    vector.z -= 1;
+}
+function move_right() {
+    vector.x -= 1;
+}
+function move_left() {
+    vector.x += 1;
+}
+
 function update(){
     'use strict';
     Object.keys(controller).forEach((e) => { if (controller[e].pressed) { controller[e].function(); }})
