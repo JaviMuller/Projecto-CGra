@@ -4,7 +4,9 @@
 var cameras = []; 
 var camera, scene, renderer;
 
-var geometry, mesh;
+var geometry, mesh, material;
+
+var textureLoader = new THREE.TextureLoader();
 
 var sides = 12;
 
@@ -57,8 +59,8 @@ function createScene(){
 //////////////////////
 function createCamera() {
     'use strict';
-    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
-    camera.position.set(0, 200, 500);
+    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 10000);
+    camera.position.set(0, 150, 500);
     camera.lookAt(0,0,0);
     scene.add(camera);
 }
@@ -68,7 +70,7 @@ function createCamera() {
 /////////////////////
 function createAmbientLight() {
     'use strict';
-    var ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    var ambientLight = new THREE.AmbientLight(0xffffff, 0.35);
     scene.add(ambientLight);
 }
 
@@ -318,23 +320,40 @@ function createHouse(x, y, z) {
 }
 
 function createField(x, y, z) {
-    var textureLoader = new THREE.TextureLoader();
     var terrain_texture = textureLoader.load('assets/heightmap.png');
     var field_texture = textureLoader.load('assets/grass.png');
     field_texture.wrapS = field_texture.wrapT = THREE.RepeatWrapping;
-    field_texture.repeat.set( 20, 20);
+    field_texture.repeat.set(5, 5);
 
-    var material = new THREE.ShaderMaterial({
+    material = new THREE.MeshPhongMaterial({
         displacementMap: terrain_texture,
-        displacementScale: 1,
-        map: field_texture
+        displacementScale: 200,
+        map: field_texture,
+        side: THREE.DoubleSide
     });
 
-    geometry = new THREE.PlaneGeometry( 1000, 1000, 200, 200 );
+    geometry = new THREE.PlaneGeometry( 1300, 1300, 250, 250 );
 
     mesh = new THREE.Mesh(geometry, material);
     mesh.rotation.x = -Math.PI / 2;
-    mesh.position.set(0, 0, 0);
+    mesh.position.set(x, y, z);
+    scene.add(mesh);
+}
+
+function createSkydome(x, y, z) {
+    var skydome_texture = textureLoader.load('assets/sky.png');
+    skydome_texture.wrapS = skydome_texture.wrapT = THREE.RepeatWrapping;
+    skydome_texture.repeat.set(5, 2);
+    material = new THREE.MeshBasicMaterial({
+        map: skydome_texture,
+        side: THREE.DoubleSide
+    });
+
+    geometry = new THREE.SphereGeometry( 540, 100, 100 );
+    
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(x, y, z);
+
     scene.add(mesh);
 }
 
@@ -369,10 +388,11 @@ function init() {
     createCamera();
     createAmbientLight();
 
-    createOvni(0,0,0);
+    createOvni(0,100,0);
     //createTrees();
     //createHouse();
     createField(0, 0, 0);
+    createSkydome(0, 0, 0);
 }
 
 /////////////////////
