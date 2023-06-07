@@ -17,6 +17,9 @@ var yellow = 0xdbb809;
 var gray = 0x808080;
 var black = 0x202020;
 var lightgray = 0xbbbbbb;
+var orange = 0xed7117;
+var white = 0xffffff;
+var brown = 0x5e2c04;
 
 var materials = {
     black: new THREE.MeshPhongMaterial({ color: black, wireframe: false }),
@@ -25,6 +28,9 @@ var materials = {
     gray: new THREE.MeshPhongMaterial({ color: gray, wireframe: false }),
     blue: new THREE.MeshPhongMaterial({ color: blue, wireframe: false }),
     lightgray: new THREE.MeshPhongMaterial({ color: lightgray, wireframe: false }),
+    orange: new THREE.MeshPhongMaterial({ color: orange, wireframe: false}),
+    brown: new THREE.MeshPhongMaterial({ color: brown, wireframe: false}),
+    white: new THREE.MeshPhongMaterial({ color: white, wireframe: false}),
 }
 
 const controller = {
@@ -32,6 +38,7 @@ const controller = {
     "P": { pressed: false, function: () => { toggle_point_light() } },
     "S": { pressed: false, function: () => { toggle_spot_light() } },
     "R": { pressed: false, function: () => { toggle_material_lightning() } },
+    "D": { pressed: false, function: () => { toggle_moon_light() } },
     
     // Textures
     "Q": { pressed: false, function: () => { toggle_texture("Gouraud") } },
@@ -44,6 +51,15 @@ const controller = {
     "ARROWLEFT": { pressed: false, function: () => { move_left() } },
     "ARROWRIGHT": { pressed: false, function: () => { move_right() } },
 }
+
+function deg_to_rad(degrees) {
+    return degrees * (Math.PI/180);
+}
+
+function rad_to_deg(radians) {
+    return radians * (180/Math.PI);
+}
+
 
 /////////////////////
 /* CREATE SCENE(S) */
@@ -79,6 +95,30 @@ function createAmbientLight() {
 /* CREATE OBJECT3D(S) */
 ////////////////////////
 
+function createMoon(x,y,z) {
+    'use strict';
+
+    var moon = new THREE.Object3D();
+    moon.name = "Moon";
+
+    geometry = new THREE.SphereGeometry(1);
+    geometry.scale(50,50,50);
+    mesh = new THREE.Mesh(geometry, materials.yellow);
+    mesh.position.set(0,0,0);
+
+    var directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
+    directionalLight.lookAt(0,0,0);
+    directionalLight.name = "MoonLight";
+    directionalLight.step = 0;
+    moon.add( directionalLight );
+
+
+    moon.add(mesh);
+    moon.position.set(x,y,z);
+
+    scene.add(moon);
+}
+
 //fixme lights
 function createOvni(x,y,z) {
     'use strict';
@@ -89,7 +129,7 @@ function createOvni(x,y,z) {
     // Base
     geometry = new THREE.SphereGeometry(1);
     geometry.scale(48,12,48);
-    mesh = new THREE.Mesh(geometry, materials.red);
+    mesh = new THREE.Mesh(geometry, materials.red); 
     mesh.position.set(x, y, z);
     ovni.add(mesh);
     
@@ -106,8 +146,9 @@ function createOvni(x,y,z) {
     mesh.position.set(x, y - 12, z);
     ovni.add(mesh);
 
-    var spotLight = new THREE.SpotLight( 0xffffff );
-    spotLight.position.set( 0, - 14.5, 0 );
+    var spotLight = new THREE.SpotLight( 0xffffff, 0.1);
+    spotLight.name="spotlight";
+    spotLight.position.set( 0, -16, 0 );
 
     scene.add(spotLight);
 
@@ -119,7 +160,7 @@ function createOvni(x,y,z) {
 
     for(let i = 0; i < sides; i++) {
         dist.setFromSpherical(sphericalCoord);
-        addSmallLight(ovni, dist.x, dist.y, dist.z);
+        addSmallLight(ovni, x+dist.x, y+dist.y, z+dist.z);
         sphericalCoord.theta += Math.PI*2/sides;
     }
 }
@@ -128,8 +169,8 @@ function addSmallLight(obj,x,y,z) {
     'use strict';
 
     //Small Light
-    var pointLight = new THREE.PointLight( 0xffffff, 1);
-    pointLight.position.set(x, y, z);
+    var pointLight = new THREE.PointLight( 0xffffff, 0.1);
+    pointLight.position.set(x, y-3, z);
     obj.add(pointLight);
 
     const sphereSize = 1;
@@ -184,6 +225,7 @@ function createHouse(x, y, z) {
 
     geom = new THREE.BufferGeometry();
 
+
     verticesOfCube = new Float32Array( [
         0, 0, 0,        7.5, 0, 0,      7.5, 1, 0,      7, 1, 0,        0, 1, 0,
         7, 4, 0,        7.5, 4, 0,      7.5, 3.5, 0,    9.5, 3.5, 0,    10, 4, 0,
@@ -214,10 +256,12 @@ function createHouse(x, y, z) {
         4, 32, 33,
     ];
 
+    
+
     geom.setIndex( indicesOfFaces );
     geom.setAttribute ( 'position', new THREE.BufferAttribute( verticesOfCube, 3 ) );
-    material = new THREE.MeshBasicMaterial( { color: 0x0000ff } );
-    mesh = new THREE.Mesh( geom, material );
+    geom.computeVertexNormals();
+    mesh = new THREE.Mesh( geom, materials.blue );
     house.add(mesh);
 
     geom = new THREE.BufferGeometry();
@@ -230,8 +274,8 @@ function createHouse(x, y, z) {
 
     geom.setIndex( indicesOfFaces );
     geom.setAttribute ( 'position', new THREE.BufferAttribute( verticesOfCube, 3 ) );
-    material = new THREE.MeshBasicMaterial( { color: 0x5e2c04 } );
-    mesh = new THREE.Mesh( geom, material );
+    geom.computeVertexNormals();
+    mesh = new THREE.Mesh( geom, materials.brown );
     house.add(mesh);
 
     geom = new THREE.BufferGeometry();
@@ -275,8 +319,8 @@ function createHouse(x, y, z) {
 
     geom.setIndex( indicesOfFaces );
     geom.setAttribute ( 'position', new THREE.BufferAttribute( verticesOfCube, 3 ) );
-    material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
-    mesh = new THREE.Mesh( geom, material );
+    geom.computeVertexNormals();
+    mesh = new THREE.Mesh( geom, materials.white );
     house.add(mesh);
 
     geom = new THREE.BufferGeometry();
@@ -290,8 +334,8 @@ function createHouse(x, y, z) {
 
     geom.setIndex( indicesOfFaces );
     geom.setAttribute ( 'position', new THREE.BufferAttribute( verticesOfCube, 3 ) );
-    material = new THREE.MeshBasicMaterial( { color: 0xed7117 } );
-    mesh = new THREE.Mesh( geom, material );
+    geom.computeVertexNormals();
+    mesh = new THREE.Mesh( geom, materials.orange );
     house.add(mesh);
 
     geom = new THREE.BufferGeometry();
@@ -309,17 +353,21 @@ function createHouse(x, y, z) {
 
     geom.setIndex( indicesOfFaces );
     geom.setAttribute ( 'position', new THREE.BufferAttribute( verticesOfCube, 3 ) );
-    material = new THREE.MeshBasicMaterial( { color: 0xaaaaaa } );
-    mesh = new THREE.Mesh( geom, material );
+    geom.computeVertexNormals();
+    mesh = new THREE.Mesh( geom, materials.lightgray );
     house.add(mesh);
 
 
     house.position.set(x,y,z);
 
+    house.rotateY(12*Math.PI/13);
+    house.scale.set(10,10,10);
+
     scene.add(house);
 }
 
 function createField(x, y, z) {
+    var textureLoader = new THREE.TextureLoader();
     var terrain_texture = textureLoader.load('assets/heightmap.png');
     var field_texture = textureLoader.load('assets/grass.png');
     field_texture.wrapS = field_texture.wrapT = THREE.RepeatWrapping;
@@ -331,7 +379,6 @@ function createField(x, y, z) {
         map: field_texture,
         side: THREE.DoubleSide
     });
-
     geometry = new THREE.PlaneGeometry( 1300, 1300, 250, 250 );
 
     mesh = new THREE.Mesh(geometry, material);
@@ -363,8 +410,17 @@ function createSkydome(x, y, z) {
 function update(){
     'use strict';
     Object.keys(controller).forEach((e) => { if (controller[e].pressed) { controller[e].function(); }})
+    if(scene.getObjectByName("MoonLight").step > 0) {
+        scene.getObjectByName("MoonLight").step -= 1;
+    }
 }
 
+function toggle_moon_light() {
+    if(scene.getObjectByName("MoonLight").step == 0) {
+        scene.getObjectByName("MoonLight").step = 20;
+        scene.getObjectByName("MoonLight").visible = !scene.getObjectByName("MoonLight").visible;
+    }
+}
 /////////////
 /* DISPLAY */
 /////////////
@@ -388,11 +444,12 @@ function init() {
     createCamera();
     createAmbientLight();
 
-    createOvni(0,100,0);
+    createOvni(0,150,0);
     //createTrees();
-    //createHouse();
+    createHouse(0,20,0);
     createField(0, 0, 0);
     createSkydome(0, 0, 0);
+    createMoon(350, 300,-350);
 }
 
 /////////////////////
@@ -421,12 +478,12 @@ window.addEventListener("resize", onWindowResize);
 /* KEY DOWN CALLBACK */
 ///////////////////////
 document.addEventListener("keydown", (e) => {
-    if (controller[e.key]) { controller[e.key].pressed = true; }
+    if (controller[e.key.toUpperCase()]) { controller[e.key.toUpperCase()].pressed = true; }
 });
 
 ///////////////////////
 /* KEY UP CALLBACK */
 ///////////////////////
 document.addEventListener("keyup", (e) => {
-    if (controller[e.key]) { controller[e.key].pressed = false; }
+    if (controller[e.key.toUpperCase()]) { controller[e.key.toUpperCase()].pressed = false; }
 });
