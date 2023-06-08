@@ -35,6 +35,9 @@ const materials = {
 sky_materials = [materials.star_white];
 field_materials = [materials.white, materials.light_blue, materials.yellow, materials.archid];
 
+stars = [];
+flowers = [];
+
 SCENE_DEPTH = 200;
 SCENE_WIDTH = window.innerWidth;
 SCENE_HEIGHT = window.innerHeight;
@@ -124,6 +127,7 @@ function createStars() {
         mesh = new THREE.Mesh(geometry, materials.star_white);
         mesh.position.set(SCENE_WIDTH/2*(Math.random()*2 - 1), SCENE_HEIGHT/2*(Math.random()*2 - 1), 55);
         scene.add(mesh);
+        stars.push(mesh);
     }
 }
 
@@ -134,6 +138,7 @@ function createFlowers() {
         mesh = new THREE.Mesh(geometry, field_materials[Math.floor(Math.random()*field_materials.length)]);
         mesh.position.set(SCENE_WIDTH/2*(Math.random()*2 - 1), SCENE_HEIGHT/2*(Math.random()*2 - 1), 10);
         scene.add(mesh);
+        flowers.push(mesh);
     }
 }
 
@@ -150,11 +155,13 @@ function createFlowers() {
 ////////////
 function field_texture_gen() {
     'use strict';
+    flowers.forEach((e) => { e.position.set(SCENE_WIDTH/2*(Math.random()*2 - 1), SCENE_HEIGHT/2*(Math.random()*2 - 1), 10); });
     camera.position.set(0, 0, 20);
 }
 
 function sky_texture_gen() {
     'use strict';
+    stars.forEach((e) => { e.position.set(SCENE_WIDTH/2*(Math.random()*2 - 1), SCENE_HEIGHT/2*(Math.random()*2 - 1), 55); });
     camera.position.set(0, 0, 100);
 }
 
