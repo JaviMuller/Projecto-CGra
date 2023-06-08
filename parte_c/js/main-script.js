@@ -4,7 +4,7 @@
 var cameras = []; 
 var camera, scene, renderer;
 
-var geometry, mesh, material;
+var geometry, mesh, material, color;
 
 var textureLoader = new THREE.TextureLoader();
 
@@ -12,6 +12,23 @@ var vector = new THREE.Vector3();
 
 var ovni;
 var pointLights = 12;
+
+var light = true;
+var mat_type = "Phong";
+
+// Field texture
+var textureLoader = new THREE.TextureLoader();
+var terrain_texture = textureLoader.load('assets/heightmap.png');
+var terrain_bump = textureLoader.load('assets/bumpmap.png');
+var field_texture = textureLoader.load('assets/grass.png');
+field_texture.wrapS = field_texture.wrapT = THREE.RepeatWrapping;
+field_texture.repeat.set(5, 5);
+
+
+// Skydome texture
+var skydome_texture = textureLoader.load('assets/sky.png');
+skydome_texture.wrapS = skydome_texture.wrapT = THREE.RepeatWrapping;
+skydome_texture.repeat.set(5, 2);
 
 var cyan = 0xe3e5e6;
 var blue = 0x1332a1;
@@ -24,77 +41,102 @@ var orange = 0xed7117;
 var white = 0xffffff;
 var brown = 0x5e2c04;
 
-var objects = {
-    black: {},
-    red: {},
-    yellow: {},
-    gray: {},
-    blue: {},
-    lightgray: {},
-    orange: {},
-    brown: {},
-    white: {}
+var meshes = {
+    black: [],
+    red: [],
+    yellow: [],
+    gray: [],
+    blue: [],
+    lightgray: [],
+    orange: [],
+    brown: [],
+    white: [],
+    field: [],
 };
 
 var materials_phong = {
-    black: new THREE.MeshPhongMaterial({ color: black, wireframe: false }),
-    red: new THREE.MeshPhongMaterial({ color: red, wireframe: false, specular: 0x999999 }),
-    yellow: new THREE.MeshPhongMaterial({ color: yellow, wireframe: false }),
-    gray: new THREE.MeshPhongMaterial({ color: gray, wireframe: false }),
-    blue: new THREE.MeshPhongMaterial({ color: blue, wireframe: false, specular: 0x999999 }),
-    lightgray: new THREE.MeshPhongMaterial({ color: lightgray, wireframe: false }),
-    orange: new THREE.MeshPhongMaterial({ color: orange, wireframe: false}),
-    brown: new THREE.MeshPhongMaterial({ color: brown, wireframe: false}),
-    white: new THREE.MeshPhongMaterial({ color: white, wireframe: false})
+    black: new THREE.MeshPhongMaterial({ color: black }),
+    red: new THREE.MeshPhongMaterial({ color: red, specular: 0x999999 }),
+    yellow: new THREE.MeshPhongMaterial({ color: yellow }),
+    gray: new THREE.MeshPhongMaterial({ color: gray }),
+    blue: new THREE.MeshPhongMaterial({ color: blue, specular: 0x999999 }),
+    lightgray: new THREE.MeshPhongMaterial({ color: lightgray }),
+    orange: new THREE.MeshPhongMaterial({ color: orange}),
+    brown: new THREE.MeshPhongMaterial({ color: brown}),
+    white: new THREE.MeshPhongMaterial({ color: white}),
+    field: new THREE.MeshPhongMaterial({
+        bumpMap: terrain_bump,
+        bumpScale: 40,
+        displacementMap: terrain_texture,
+        displacementScale: 300,
+        map: field_texture,
+    }),
 }
 
 var materials_gouraud = {
-    black: new THREE.MeshLambertMaterial({ color: black, wireframe: false }),
-    red: new THREE.MeshLambertMaterial({ color: red, wireframe: false }),
-    yellow: new THREE.MeshLambertMaterial({ color: yellow, wireframe: false }),
-    gray: new THREE.MeshLambertMaterial({ color: gray, wireframe: false }),
-    blue: new THREE.MeshLambertMaterial({ color: blue, wireframe: false }),
-    lightgray: new THREE.MeshLambertMaterial({ color: lightgray, wireframe: false }),
-    orange: new THREE.MeshLambertMaterial({ color: orange, wireframe: false}),
-    brown: new THREE.MeshLambertMaterial({ color: brown, wireframe: false}),
-    white: new THREE.MeshLambertMaterial({ color: white, wireframe: false})
+    black: new THREE.MeshLambertMaterial({ color: black }),
+    red: new THREE.MeshLambertMaterial({ color: red, specular: 0x999999 }),
+    yellow: new THREE.MeshLambertMaterial({ color: yellow }),
+    gray: new THREE.MeshLambertMaterial({ color: gray }),
+    blue: new THREE.MeshLambertMaterial({ color: blue, specular: 0x999999 }),
+    lightgray: new THREE.MeshLambertMaterial({ color: lightgray }),
+    orange: new THREE.MeshLambertMaterial({ color: orange }),
+    brown: new THREE.MeshLambertMaterial({ color: brown }),
+    white: new THREE.MeshLambertMaterial({ color: white }),
+    field: new THREE.MeshLambertMaterial({
+        bumpMap: terrain_bump,
+        bumpScale: 40,
+        displacementMap: terrain_texture,
+        displacementScale: 300,
+        map: field_texture,
+    }),
 }
 
 var materials_cartoon = {
-    black: new THREE.MeshToonMaterial({ color: black, wireframe: false }),
-    red: new THREE.MeshToonMaterial({ color: red, wireframe: false }),
-    yellow: new THREE.MeshToonMaterial({ color: yellow, wireframe: false }),
-    gray: new THREE.MeshToonMaterial({ color: gray, wireframe: false }),
-    blue: new THREE.MeshToonMaterial({ color: blue, wireframe: false }),
-    lightgray: new THREE.MeshToonMaterial({ color: lightgray, wireframe: false }),
-    orange: new THREE.MeshToonMaterial({ color: orange, wireframe: false}),
-    brown: new THREE.MeshToonMaterial({ color: brown, wireframe: false}),
-    white: new THREE.MeshToonMaterial({ color: white, wireframe: false})
+    black: new THREE.MeshToonMaterial({ color: black }),
+    red: new THREE.MeshToonMaterial({ color: red, specular: 0x999999 }),
+    yellow: new THREE.MeshToonMaterial({ color: yellow }),
+    gray: new THREE.MeshToonMaterial({ color: gray }),
+    blue: new THREE.MeshToonMaterial({ color: blue, specular: 0x999999 }),
+    lightgray: new THREE.MeshToonMaterial({ color: lightgray }),
+    orange: new THREE.MeshToonMaterial({ color: orange}),
+    brown: new THREE.MeshToonMaterial({ color: brown}),
+    white: new THREE.MeshToonMaterial({ color: white}),
+    field: new THREE.MeshToonMaterial({
+        bumpMap: terrain_bump,
+        bumpScale: 40,
+        displacementMap: terrain_texture,
+        displacementScale: 300,
+        map: field_texture,
+    }),
 }
 
 var materials_basic = {
-    black: new THREE.MeshBasicMaterial({ color: black, wireframe: false }),
-    red: new THREE.MeshBasicMaterial({ color: red, wireframe: false }),
-    yellow: new THREE.MeshBasicMaterial({ color: yellow, wireframe: false }),
-    gray: new THREE.MeshBasicMaterial({ color: gray, wireframe: false }),
-    blue: new THREE.MeshBasicMaterial({ color: blue, wireframe: false }),
-    lightgray: new THREE.MeshBasicMaterial({ color: lightgray, wireframe: false }),
-    orange: new THREE.MeshBasicMaterial({ color: orange, wireframe: false}),
-    brown: new THREE.MeshBasicMaterial({ color: brown, wireframe: false}),
-    white: new THREE.MeshBasicMaterial({ color: white, wireframe: false})
+    black: new THREE.MeshBasicMaterial({ color: black }),
+    red: new THREE.MeshBasicMaterial({ color: red }),
+    yellow: new THREE.MeshBasicMaterial({ color: yellow }),
+    gray: new THREE.MeshBasicMaterial({ color: gray }),
+    blue: new THREE.MeshBasicMaterial({ color: blue }),
+    lightgray: new THREE.MeshBasicMaterial({ color: lightgray }),
+    orange: new THREE.MeshBasicMaterial({ color: orange}),
+    brown: new THREE.MeshBasicMaterial({ color: brown}),
+    white: new THREE.MeshBasicMaterial({ color: white}),
+    field: new THREE.MeshBasicMaterial({
+        map: field_texture,
+    }),
 }
 
 const controller = {
     // Lights
-    "P": { pressed: false, function: () => { toggle_point_light() } },
-    "S": { pressed: false, function: () => { toggle_spot_light() } },
-    "D": { pressed: false, function: () => { toggle_moon_light() } },
+    "P": { pressed: false, function: () => { toggle_point_light(); controller["P"].pressed = false; } },
+    "S": { pressed: false, function: () => { toggle_spot_light(); controller["S"].pressed = false; } },
+    "D": { pressed: false, function: () => { toggle_moon_light(); controller["D"].pressed = false; } },
     
     // Textures
-    "Q": { pressed: false, function: () => { toggle_texture("Gouraud") } },
-    "W": { pressed: false, function: () => { toggle_texture("Phong") } },
-    "E": { pressed: false, function: () => { toggle_texture("Cartoon") } },
-    "R": { pressed: false, function: () => { toggle_texture("Basic") } },
+    "Q": { pressed: false, function: () => { toggle_texture("Gouraud"); controller["Q"].pressed = false; } },
+    "W": { pressed: false, function: () => { toggle_texture("Phong"); controller["W"].pressed = false; } },
+    "E": { pressed: false, function: () => { toggle_texture("Cartoon"); controller["E"].pressed = false; } },
+    "R": { pressed: false, function: () => { toggle_texture("Basic"); controller["R"].pressed = false; } },
 
     // Movement
     "ARROWUP": { pressed: false, function: () => { move_far() } },
@@ -152,15 +194,17 @@ function createMoon(x,y,z) {
     var moon = new THREE.Object3D();
     moon.name = "Moon";
 
+    color = "yellow";
     geometry = new THREE.SphereGeometry(1);
     geometry.scale(50,50,50);
-    mesh = new THREE.Mesh(geometry, materials_phong.yellow);
+    mesh = new THREE.Mesh(geometry, materials_phong[color]);
     mesh.position.set(0,0,0);
+    meshes[color].push(mesh);
 
     var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.2 );
     directionalLight.name = "MoonLight";
     directionalLight.step = 0;
-    moon.add( directionalLight );
+    moon.add(directionalLight);
 
     moon.add(mesh);
     moon.position.set(x,y,z);
@@ -177,17 +221,21 @@ function createOvni(x,y,z) {
     ovni.name = "Ovni";
 
     // Base
+    color = "red";
     geometry = new THREE.SphereGeometry(1);
     geometry.scale(48,12,48);
-    mesh = new THREE.Mesh(geometry, materials_phong.red); 
+    mesh = new THREE.Mesh(geometry, materials_phong[color]); 
     mesh.position.set(x, y, z);
+    meshes[color].push(mesh);
     ovni.add(mesh);
     
     // Cockpit
+    color = "blue";
     geometry = new THREE.SphereGeometry(1);
     geometry.scale(24,24,24);
-    mesh = new THREE.Mesh(geometry, materials_phong.blue);
+    mesh = new THREE.Mesh(geometry, materials_phong[color]);
     mesh.position.set(x, y + 12, z);
+    meshes[color].push(mesh);
     ovni.add(mesh);
 
     // Main Light
@@ -236,32 +284,41 @@ function createTree (name, x, y, z) {
     var tree = new THREE.Object3D();
     tree.name = name;
 
+    // Treetop
+    color = "darkgreen";
+
     geometry = new THREE.SphereGeometry(1);
     geometry.scale(5,3,6);
-    mesh = new THREE.Mesh(geometry, materials_phong.darkgreen);
+    mesh = new THREE.Mesh(geometry, materials_phong[color]);
     mesh.rotateZ(deg_to_rad(-30));
     mesh.position.set(x + 2.5, y + 2, z - 1);
     tree.add(mesh);
+    meshes[color].push(mesh);
 
     geometry = new THREE.SphereGeometry(1);
     geometry.scale(4,3,5);
-    mesh = new THREE.Mesh(geometry, materials_phong.darkgreen);
+    mesh = new THREE.Mesh(geometry, materials_phong[color]);
     mesh.rotateZ(deg_to_rad(30));
     mesh.position.set(x - 3, y + 2, z + 1);
     tree.add(mesh);
+    meshes[color].push(mesh);
 
+    // Trunk
+    color = "brown";
     geometry = new THREE.CylinderGeometry(1,1,6);
-    mesh = new THREE.Mesh(geometry, materials_phong.brown);
+    mesh = new THREE.Mesh(geometry, materials_phong[color]);
     mesh.rotateZ(deg_to_rad(-30));
     mesh.position.set(x, y - 2, z - 1);
     tree.add(mesh);
+    meshes[color].push(mesh);
 
     geometry = new THREE.CylinderGeometry(1,1,4 );
-    mesh = new THREE.Mesh(geometry, materials_phong.brown);
+    mesh = new THREE.Mesh(geometry, materials_phong[color]);
     mesh.rotateZ(deg_to_rad(30));
     mesh.rotateX(deg_to_rad(30));
     mesh.position.set(x - 1, y - 1, z);
     tree.add(mesh);
+    meshes[color].push(mesh);
 
     scene.add(tree);
 }
@@ -272,9 +329,9 @@ function createHouse(x, y, z) {
     var house = new THREE.Object3D();
     house.name = "House";
 
+    // Contour details
 
     geom = new THREE.BufferGeometry();
-
 
     verticesOfCube = new Float32Array( [
         0, 0, 0,        7.5, 0, 0,      7.5, 1, 0,      7, 1, 0,        0, 1, 0,
@@ -307,12 +364,17 @@ function createHouse(x, y, z) {
     ];
 
     
-
+    color = "blue";
     geom.setIndex( indicesOfFaces );
     geom.setAttribute ( 'position', new THREE.BufferAttribute( verticesOfCube, 3 ) );
     geom.computeVertexNormals();
-    mesh = new THREE.Mesh( geom, materials_phong.blue );
+    mesh = new THREE.Mesh( geom, materials_phong[color] );
     house.add(mesh);
+    meshes[color].push(mesh);
+
+
+
+    // Door
 
     geom = new THREE.BufferGeometry();
 
@@ -322,12 +384,16 @@ function createHouse(x, y, z) {
         2, 11, 1,
     ];
 
+    color = "brown";
     geom.setIndex( indicesOfFaces );
     geom.setAttribute ( 'position', new THREE.BufferAttribute( verticesOfCube, 3 ) );
     geom.computeVertexNormals();
-    mesh = new THREE.Mesh( geom, materials_phong.brown );
+    mesh = new THREE.Mesh( geom, materials_phong[color] );
     house.add(mesh);
+    meshes[color].push(mesh);
 
+
+    // Main walls
     geom = new THREE.BufferGeometry();
 
     indicesOfFaces = [
@@ -367,11 +433,16 @@ function createHouse(x, y, z) {
         37, 4, 33,
     ];
 
+    color = "white";
     geom.setIndex( indicesOfFaces );
     geom.setAttribute ( 'position', new THREE.BufferAttribute( verticesOfCube, 3 ) );
     geom.computeVertexNormals();
-    mesh = new THREE.Mesh( geom, materials_phong.white );
+    mesh = new THREE.Mesh( geom, materials_phong[color] );
     house.add(mesh);
+    meshes[color].push(mesh);
+
+
+    // Roof
 
     geom = new THREE.BufferGeometry();
 
@@ -382,11 +453,16 @@ function createHouse(x, y, z) {
         35, 15, 34,
     ];
 
+    color = "orange";
     geom.setIndex( indicesOfFaces );
     geom.setAttribute ( 'position', new THREE.BufferAttribute( verticesOfCube, 3 ) );
     geom.computeVertexNormals();
-    mesh = new THREE.Mesh( geom, materials_phong.orange );
+    mesh = new THREE.Mesh( geom, materials_phong[color] );
     house.add(mesh);
+    meshes[color].push(mesh);
+
+
+    // Windows
 
     geom = new THREE.BufferGeometry();
 
@@ -401,11 +477,14 @@ function createHouse(x, y, z) {
         36, 38, 37,
     ];
 
+    color = "lightgray"
     geom.setIndex( indicesOfFaces );
     geom.setAttribute ( 'position', new THREE.BufferAttribute( verticesOfCube, 3 ) );
     geom.computeVertexNormals();
-    mesh = new THREE.Mesh( geom, materials_phong.lightgray );
+    mesh = new THREE.Mesh( geom, materials_phong[color] );
     house.add(mesh);
+    meshes[color].push(mesh);
+
 
 
     house.position.set(x,y,z);
@@ -417,33 +496,18 @@ function createHouse(x, y, z) {
 }
 
 function createField(x, y, z) {
-    var textureLoader = new THREE.TextureLoader();
-    var terrain_texture = textureLoader.load('assets/heightmap.png');
-    var terrain_bump = textureLoader.load('assets/bumpmap.png');
-    var field_texture = textureLoader.load('assets/grass.png');
-    field_texture.wrapS = field_texture.wrapT = THREE.RepeatWrapping;
-    field_texture.repeat.set(5, 5);
-
-    material = new THREE.MeshPhongMaterial({
-        bumpMap: terrain_bump,
-        bumpScale: 40,
-        displacementMap: terrain_texture,
-        displacementScale: 300,
-        map: field_texture,
-    });
-    
+    color = "field";
     geometry = new THREE.PlaneGeometry( 1300, 1300, 300, 300 );
     geometry.rotateX(-Math.PI/2);
 
+    material = materials_phong[color];
     mesh = new THREE.Mesh(geometry, material);
     mesh.position.set(x, y, z);
     scene.add(mesh);
+    meshes[color].push(mesh);
 }
 
 function createSkydome(x, y, z) {
-    var skydome_texture = textureLoader.load('assets/sky.png');
-    skydome_texture.wrapS = skydome_texture.wrapT = THREE.RepeatWrapping;
-    skydome_texture.repeat.set(5, 2);
     material = new THREE.MeshBasicMaterial({
         map: skydome_texture,
         side: THREE.DoubleSide
@@ -475,10 +539,48 @@ function move_left() {
 
 function toggle_texture(texture) {
     switch(texture) {
-        case "Goraud":
+        case "Gouraud":
+            if (light)
+                Object.keys(meshes).forEach((c) => { 
+                    meshes[c].forEach((m) => {
+                        m.material = materials_gouraud[c];
+                    });
+                });
+
+            mat_type = "Gouraud";
+            break;
         case "Phong":
+            if (light)
+                Object.keys(meshes).forEach((c) => { 
+                    meshes[c].forEach((m) => {
+                        m.material = materials_phong[c];
+                    });
+                });
+
+            mat_type = "Phong";
+            break;
         case "Cartoon":
+            if (light)
+                Object.keys(meshes).forEach((c) => { 
+                    meshes[c].forEach((m) => {
+                        m.material = materials_cartoon[c];
+                    });
+                });
+
+            mat_type = "Cartoon";
+            break;
         case "Basic":
+            light = !light;
+            if (!light)
+                Object.keys(meshes).forEach((c) => { 
+                    meshes[c].forEach((m) => {
+                        m.material = materials_basic[c];
+                    });
+                });
+            else
+                toggle_texture(mat_type);
+
+            break;
     }
 }
 
@@ -488,6 +590,7 @@ function update(){
     if(scene.getObjectByName("MoonLight").step > 0) {
         scene.getObjectByName("MoonLight").step -= 1;
     }
+    // move_ovni();
 }
 
 function toggle_moon_light() {
