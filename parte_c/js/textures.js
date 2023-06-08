@@ -9,6 +9,8 @@ var number_flowers = 130;
 
 var geometry, material, mesh;
 
+
+// Usado para fazer download das texturas
 var fileName;
 
 const controller = {

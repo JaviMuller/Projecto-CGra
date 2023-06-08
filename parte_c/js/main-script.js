@@ -318,7 +318,7 @@ function createHouse(x, y, z) {
 
     // Contour details
 
-    geom = new THREE.BufferGeometry();
+    geometry = new THREE.BufferGeometry();
 
     verticesOfCube = new Float32Array( [
         0, 0, 0,        7.5, 0, 0,      7.5, 1, 0,      7, 1, 0,        0, 1, 0,
@@ -352,10 +352,10 @@ function createHouse(x, y, z) {
 
     
     color = "blue";
-    geom.setIndex( indicesOfFaces );
-    geom.setAttribute ( 'position', new THREE.BufferAttribute( verticesOfCube, 3 ) );
-    geom.computeVertexNormals();
-    mesh = new THREE.Mesh( geom, materials_phong[color] );
+    geometry.setIndex( indicesOfFaces );
+    geometry.setAttribute ( 'position', new THREE.BufferAttribute( verticesOfCube, 3 ) );
+    geometry.computeVertexNormals();
+    mesh = new THREE.Mesh( geometry, materials_phong[color] );
     house.add(mesh);
     meshes[color].push(mesh);
 
@@ -363,7 +363,7 @@ function createHouse(x, y, z) {
 
     // Door
 
-    geom = new THREE.BufferGeometry();
+    geometry = new THREE.BufferGeometry();
 
     indicesOfFaces = [
         7, 8, 11,
@@ -372,16 +372,16 @@ function createHouse(x, y, z) {
     ];
 
     color = "brown";
-    geom.setIndex( indicesOfFaces );
-    geom.setAttribute ( 'position', new THREE.BufferAttribute( verticesOfCube, 3 ) );
-    geom.computeVertexNormals();
-    mesh = new THREE.Mesh( geom, materials_phong[color] );
+    geometry.setIndex( indicesOfFaces );
+    geometry.setAttribute ( 'position', new THREE.BufferAttribute( verticesOfCube, 3 ) );
+    geometry.computeVertexNormals();
+    mesh = new THREE.Mesh( geometry, materials_phong[color] );
     house.add(mesh);
     meshes[color].push(mesh);
 
 
     // Main walls
-    geom = new THREE.BufferGeometry();
+    geometry = new THREE.BufferGeometry();
 
     indicesOfFaces = [
         14, 12, 17,
@@ -421,17 +421,17 @@ function createHouse(x, y, z) {
     ];
 
     color = "white";
-    geom.setIndex( indicesOfFaces );
-    geom.setAttribute ( 'position', new THREE.BufferAttribute( verticesOfCube, 3 ) );
-    geom.computeVertexNormals();
-    mesh = new THREE.Mesh( geom, materials_phong[color] );
+    geometry.setIndex( indicesOfFaces );
+    geometry.setAttribute ( 'position', new THREE.BufferAttribute( verticesOfCube, 3 ) );
+    geometry.computeVertexNormals();
+    mesh = new THREE.Mesh( geometry, materials_phong[color] );
     house.add(mesh);
     meshes[color].push(mesh);
 
 
     // Roof
 
-    geom = new THREE.BufferGeometry();
+    geometry = new THREE.BufferGeometry();
 
     indicesOfFaces = [
         35, 14, 15,
@@ -441,17 +441,17 @@ function createHouse(x, y, z) {
     ];
 
     color = "orange";
-    geom.setIndex( indicesOfFaces );
-    geom.setAttribute ( 'position', new THREE.BufferAttribute( verticesOfCube, 3 ) );
-    geom.computeVertexNormals();
-    mesh = new THREE.Mesh( geom, materials_phong[color] );
+    geometry.setIndex( indicesOfFaces );
+    geometry.setAttribute ( 'position', new THREE.BufferAttribute( verticesOfCube, 3 ) );
+    geometry.computeVertexNormals();
+    mesh = new THREE.Mesh( geometry, materials_phong[color] );
     house.add(mesh);
     meshes[color].push(mesh);
 
 
     // Windows
 
-    geom = new THREE.BufferGeometry();
+    geometry = new THREE.BufferGeometry();
 
     indicesOfFaces = [
         16, 18, 19,
@@ -465,10 +465,10 @@ function createHouse(x, y, z) {
     ];
 
     color = "lightgray"
-    geom.setIndex( indicesOfFaces );
-    geom.setAttribute ( 'position', new THREE.BufferAttribute( verticesOfCube, 3 ) );
-    geom.computeVertexNormals();
-    mesh = new THREE.Mesh( geom, materials_phong[color] );
+    geometry.setIndex( indicesOfFaces );
+    geometry.setAttribute ( 'position', new THREE.BufferAttribute( verticesOfCube, 3 ) );
+    geometry.computeVertexNormals();
+    mesh = new THREE.Mesh( geometry, materials_phong[color] );
     house.add(mesh);
     meshes[color].push(mesh);
 
@@ -485,6 +485,7 @@ function createHouse(x, y, z) {
 function createField(x, y, z) {
     geometry = new THREE.PlaneGeometry( 1300, 1300, 300, 300 );
     geometry.rotateX(-Math.PI/2);
+    geometry.computeVertexNormals();
 
     material = materials_phong["field"];
     mesh = new THREE.Mesh(geometry, material);
