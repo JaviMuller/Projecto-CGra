@@ -188,7 +188,7 @@ function createMoon(x,y,z) {
     mesh.position.set(0,0,0);
     meshes[color].push(mesh);
 
-    var directionalLight = new THREE.DirectionalLight( 0xfeff84, 0.3 );
+    var directionalLight = new THREE.DirectionalLight( 0xfeff84, 0.1 );
     directionalLight.name = "MoonLight";
     directionalLight.step = 0;
     moon.add(directionalLight);
@@ -231,13 +231,15 @@ function createOvni(x,y,z) {
     mesh.position.set(x, y - 12, z);
     ovni.add(mesh);
 
-    var spotLight = new THREE.SpotLight( 0xffffff, 0.5, 0, Math.PI/4, 0.5, 0.5);
+    var spotLight = new THREE.SpotLight( 0xffffff, 0.5, 0, Math.PI/8, 0.5, 0.5);
     spotLight.name="spotlight";
-    spotLight.position.set( 0, -16, 0 );
+    spotLight.position.set( x, y-14, z );
+    var spotTarget = new THREE.Object3D();
+    spotTarget.position.set(x,y-26,z);
+    spotLight.target = spotTarget;
 
+    ovni.add(spotTarget);
     ovni.add(spotLight);
-
-    scene.add(ovni);
 
     var dist = new THREE.Vector3(36, -8, 0);
     var sphericalCoord = new THREE.Spherical();
@@ -245,22 +247,27 @@ function createOvni(x,y,z) {
 
     for(let i = 0; i < pointLights; i++) {
         dist.setFromSpherical(sphericalCoord);
-        addSmallLight(ovni, dist.x, dist.y, dist.z);
+        addSmallLight(ovni, x+dist.x, y+dist.y, z+dist.z);
         sphericalCoord.theta += Math.PI*2/pointLights;
     }
+
+    scene.add(ovni);
 }
 
 function addSmallLight(obj,x,y,z) {
     'use strict';
 
-    //Small Light
-    var pointLight = new THREE.PointLight( 0xffffff, 0.1);
-    pointLight.position.set(x, y-4, z);
+    color = "white";
+    var geometry = new THREE.SphereGeometry(1);
+    mesh = new THREE.Mesh(geometry, materials_phong[color]);
+    mesh.position.set(x, y, z);
+    obj.add(mesh);
+
+    var pointLight = new THREE.PointLight( 0xffffff, 0.4, 1000, 25);
+    pointLight.position.set(x, y-1, z);
     obj.add(pointLight);
 
-    const sphereSize = 1;
-    const pointLightHelper = new THREE.PointLightHelper( pointLight, sphereSize );
-    obj.add( pointLightHelper );
+
 }
 
 
@@ -477,7 +484,7 @@ function createHouse(x, y, z) {
     house.position.set(x,y,z);
 
     house.rotateY(12*Math.PI/13);
-    house.scale.set(3,3,3);
+    house.scale.set(9,9,9);
 
     scene.add(house);
 }
@@ -507,16 +514,16 @@ function createSkydome(x, y, z) {
 /* UPDATE */
 ////////////
 function move_far() {
-    vector.z += 1;
+    vector.z -= 10;
 }
 function move_near() {
-    vector.z -= 1;
+    vector.z += 10;
 }
 function move_right() {
-    vector.x -= 1;
+    vector.x += 10;
 }
 function move_left() {
-    vector.x += 1;
+    vector.x -= 10;
 }
 
 function toggle_texture(texture) {
@@ -567,13 +574,19 @@ function toggle_texture(texture) {
     }
 }
 
+function move_ovni() {
+    vector.normalize();
+    scene.getObjectByName("Ovni").translateOnAxis(vector,5);
+}
+
 function update(){
     'use strict';
+    vector = new THREE.Vector3(0,0,0);
     Object.keys(controller).forEach((e) => { if (controller[e].pressed) { controller[e].function(); }})
     if(scene.getObjectByName("MoonLight").step > 0) {
         scene.getObjectByName("MoonLight").step -= 1;
     }
-    // move_ovni();
+    move_ovni();
 }
 
 function toggle_moon_light() {
@@ -608,7 +621,7 @@ function init() {
     createCamera();
     createAmbientLight();
 
-    createOvni(0,150,0);
+    createOvni(-100,170,200);
     //createTrees();
     createHouse(-20,65,320);
     createField(0, 0, 0);
