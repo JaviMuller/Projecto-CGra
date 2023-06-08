@@ -24,7 +24,7 @@ var orange = 0xed7117;
 var white = 0xffffff;
 var brown = 0x5e2c04;
 
-var materials = {
+var objects = {
     black: {},
     red: {},
     yellow: {},
@@ -38,10 +38,10 @@ var materials = {
 
 var materials_phong = {
     black: new THREE.MeshPhongMaterial({ color: black, wireframe: false }),
-    red: new THREE.MeshPhongMaterial({ color: red, wireframe: false }),
+    red: new THREE.MeshPhongMaterial({ color: red, wireframe: false, specular: 0x999999 }),
     yellow: new THREE.MeshPhongMaterial({ color: yellow, wireframe: false }),
     gray: new THREE.MeshPhongMaterial({ color: gray, wireframe: false }),
-    blue: new THREE.MeshPhongMaterial({ color: blue, wireframe: false }),
+    blue: new THREE.MeshPhongMaterial({ color: blue, wireframe: false, specular: 0x999999 }),
     lightgray: new THREE.MeshPhongMaterial({ color: lightgray, wireframe: false }),
     orange: new THREE.MeshPhongMaterial({ color: orange, wireframe: false}),
     brown: new THREE.MeshPhongMaterial({ color: brown, wireframe: false}),
@@ -137,7 +137,7 @@ function createCamera() {
 /////////////////////
 function createAmbientLight() {
     'use strict';
-    var ambientLight = new THREE.AmbientLight(0xffffff, 0.35);
+    var ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
     scene.add(ambientLight);
 }
 
@@ -154,18 +154,17 @@ function createMoon(x,y,z) {
 
     geometry = new THREE.SphereGeometry(1);
     geometry.scale(50,50,50);
-    mesh = new THREE.Mesh(geometry, materials.yellow);
+    mesh = new THREE.Mesh(geometry, materials_phong.yellow);
     mesh.position.set(0,0,0);
 
-    var directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
-    directionalLight.lookAt(0,0,0);
+    var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.2 );
     directionalLight.name = "MoonLight";
     directionalLight.step = 0;
     moon.add( directionalLight );
 
-
     moon.add(mesh);
     moon.position.set(x,y,z);
+    directionalLight.lookAt(0,0,0);
 
     scene.add(moon);
 }
@@ -180,28 +179,28 @@ function createOvni(x,y,z) {
     // Base
     geometry = new THREE.SphereGeometry(1);
     geometry.scale(48,12,48);
-    mesh = new THREE.Mesh(geometry, materials.red); 
+    mesh = new THREE.Mesh(geometry, materials_phong.red); 
     mesh.position.set(x, y, z);
     ovni.add(mesh);
     
     // Cockpit
     geometry = new THREE.SphereGeometry(1);
     geometry.scale(24,24,24);
-    mesh = new THREE.Mesh(geometry, materials.blue);
+    mesh = new THREE.Mesh(geometry, materials_phong.blue);
     mesh.position.set(x, y + 12, z);
     ovni.add(mesh);
 
     // Main Light
     geometry = new THREE.CylinderGeometry(12, 12, 3);
-    mesh = new THREE.Mesh(geometry, materials.gray);
+    mesh = new THREE.Mesh(geometry, materials_phong.gray);
     mesh.position.set(x, y - 12, z);
     ovni.add(mesh);
 
-    var spotLight = new THREE.SpotLight( 0xffffff, 0.1);
+    var spotLight = new THREE.SpotLight( 0xffffff, 0.2, 0, Math.PI/4, 0.5, 0.5);
     spotLight.name="spotlight";
     spotLight.position.set( 0, -16, 0 );
 
-    scene.add(spotLight);
+    ovni.add(spotLight);
 
     scene.add(ovni);
 
@@ -221,7 +220,7 @@ function addSmallLight(obj,x,y,z) {
 
     //Small Light
     var pointLight = new THREE.PointLight( 0xffffff, 0.1);
-    pointLight.position.set(x, y-3, z);
+    pointLight.position.set(x, y-4, z);
     obj.add(pointLight);
 
     const sphereSize = 1;
@@ -239,26 +238,26 @@ function createTree (name, x, y, z) {
 
     geometry = new THREE.SphereGeometry(1);
     geometry.scale(5,3,6);
-    mesh = new THREE.Mesh(geometry, materials.darkgreen);
+    mesh = new THREE.Mesh(geometry, materials_phong.darkgreen);
     mesh.rotateZ(deg_to_rad(-30));
     mesh.position.set(x + 2.5, y + 2, z - 1);
     tree.add(mesh);
 
     geometry = new THREE.SphereGeometry(1);
     geometry.scale(4,3,5);
-    mesh = new THREE.Mesh(geometry, materials.darkgreen);
+    mesh = new THREE.Mesh(geometry, materials_phong.darkgreen);
     mesh.rotateZ(deg_to_rad(30));
     mesh.position.set(x - 3, y + 2, z + 1);
     tree.add(mesh);
 
     geometry = new THREE.CylinderGeometry(1,1,6);
-    mesh = new THREE.Mesh(geometry, materials.brown);
+    mesh = new THREE.Mesh(geometry, materials_phong.brown);
     mesh.rotateZ(deg_to_rad(-30));
     mesh.position.set(x, y - 2, z - 1);
     tree.add(mesh);
 
     geometry = new THREE.CylinderGeometry(1,1,4 );
-    mesh = new THREE.Mesh(geometry, materials.brown);
+    mesh = new THREE.Mesh(geometry, materials_phong.brown);
     mesh.rotateZ(deg_to_rad(30));
     mesh.rotateX(deg_to_rad(30));
     mesh.position.set(x - 1, y - 1, z);
@@ -312,7 +311,7 @@ function createHouse(x, y, z) {
     geom.setIndex( indicesOfFaces );
     geom.setAttribute ( 'position', new THREE.BufferAttribute( verticesOfCube, 3 ) );
     geom.computeVertexNormals();
-    mesh = new THREE.Mesh( geom, materials.blue );
+    mesh = new THREE.Mesh( geom, materials_phong.blue );
     house.add(mesh);
 
     geom = new THREE.BufferGeometry();
@@ -326,7 +325,7 @@ function createHouse(x, y, z) {
     geom.setIndex( indicesOfFaces );
     geom.setAttribute ( 'position', new THREE.BufferAttribute( verticesOfCube, 3 ) );
     geom.computeVertexNormals();
-    mesh = new THREE.Mesh( geom, materials.brown );
+    mesh = new THREE.Mesh( geom, materials_phong.brown );
     house.add(mesh);
 
     geom = new THREE.BufferGeometry();
@@ -371,7 +370,7 @@ function createHouse(x, y, z) {
     geom.setIndex( indicesOfFaces );
     geom.setAttribute ( 'position', new THREE.BufferAttribute( verticesOfCube, 3 ) );
     geom.computeVertexNormals();
-    mesh = new THREE.Mesh( geom, materials.white );
+    mesh = new THREE.Mesh( geom, materials_phong.white );
     house.add(mesh);
 
     geom = new THREE.BufferGeometry();
@@ -386,7 +385,7 @@ function createHouse(x, y, z) {
     geom.setIndex( indicesOfFaces );
     geom.setAttribute ( 'position', new THREE.BufferAttribute( verticesOfCube, 3 ) );
     geom.computeVertexNormals();
-    mesh = new THREE.Mesh( geom, materials.orange );
+    mesh = new THREE.Mesh( geom, materials_phong.orange );
     house.add(mesh);
 
     geom = new THREE.BufferGeometry();
@@ -405,14 +404,14 @@ function createHouse(x, y, z) {
     geom.setIndex( indicesOfFaces );
     geom.setAttribute ( 'position', new THREE.BufferAttribute( verticesOfCube, 3 ) );
     geom.computeVertexNormals();
-    mesh = new THREE.Mesh( geom, materials.lightgray );
+    mesh = new THREE.Mesh( geom, materials_phong.lightgray );
     house.add(mesh);
 
 
     house.position.set(x,y,z);
 
     house.rotateY(12*Math.PI/13);
-    house.scale.set(10,10,10);
+    house.scale.set(3,3,3);
 
     scene.add(house);
 }
@@ -420,20 +419,23 @@ function createHouse(x, y, z) {
 function createField(x, y, z) {
     var textureLoader = new THREE.TextureLoader();
     var terrain_texture = textureLoader.load('assets/heightmap.png');
+    var terrain_bump = textureLoader.load('assets/bumpmap.png');
     var field_texture = textureLoader.load('assets/grass.png');
     field_texture.wrapS = field_texture.wrapT = THREE.RepeatWrapping;
     field_texture.repeat.set(5, 5);
 
     material = new THREE.MeshPhongMaterial({
+        bumpMap: terrain_bump,
+        bumpScale: 40,
         displacementMap: terrain_texture,
-        displacementScale: 200,
+        displacementScale: 300,
         map: field_texture,
-        side: THREE.DoubleSide
     });
-    geometry = new THREE.PlaneGeometry( 1300, 1300, 250, 250 );
+    
+    geometry = new THREE.PlaneGeometry( 1300, 1300, 300, 300 );
+    geometry.rotateX(-Math.PI/2);
 
     mesh = new THREE.Mesh(geometry, material);
-    mesh.rotation.x = -Math.PI / 2;
     mesh.position.set(x, y, z);
     scene.add(mesh);
 }
@@ -471,6 +473,15 @@ function move_left() {
     vector.x += 1;
 }
 
+function toggle_texture(texture) {
+    switch(texture) {
+        case "Goraud":
+        case "Phong":
+        case "Cartoon":
+        case "Basic":
+    }
+}
+
 function update(){
     'use strict';
     Object.keys(controller).forEach((e) => { if (controller[e].pressed) { controller[e].function(); }})
@@ -501,8 +512,11 @@ function init() {
     renderer = new THREE.WebGLRenderer({
         antialias: true
     });
+    renderer.setPixelRatio(window.devicePixelRatio); 
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.xr.enabled = true;
     document.body.appendChild(renderer.domElement);
+    document.body.appendChild(VRButton.createButton(renderer));
 
     createScene();
     createCamera();
@@ -510,7 +524,7 @@ function init() {
 
     createOvni(0,150,0);
     //createTrees();
-    createHouse(0,20,0);
+    createHouse(-20,65,320);
     createField(0, 0, 0);
     createSkydome(0, 0, 0);
     createMoon(350, 300,-350);
@@ -521,9 +535,10 @@ function init() {
 /////////////////////
 function animate() {
     'use strict';
-    update();
-    render();
-    requestAnimationFrame(animate);
+    renderer.setAnimationLoop( () => {
+        update();
+        render(); 
+    });
 }
 
 ////////////////////////////
