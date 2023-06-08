@@ -244,7 +244,7 @@ function createOvni(x,y,z) {
     mesh.position.set(x, y - 12, z);
     ovni.add(mesh);
 
-    var spotLight = new THREE.SpotLight( 0xffffff, 0.2, 0, Math.PI/4, 0.5, 0.5);
+    var spotLight = new THREE.SpotLight( 0xffffff, 0.5, 0, Math.PI/4, 0.5, 0.5);
     spotLight.name="spotlight";
     spotLight.position.set( 0, -16, 0 );
 
@@ -574,7 +574,8 @@ function toggle_texture(texture) {
             if (!light)
                 Object.keys(meshes).forEach((c) => { 
                     meshes[c].forEach((m) => {
-                        m.material = materials_basic[c];
+                        if (c != "field")
+                            m.material = materials_basic[c];
                     });
                 });
             else
