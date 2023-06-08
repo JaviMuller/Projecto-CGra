@@ -51,7 +51,6 @@ var meshes = {
     orange: [],
     brown: [],
     white: [],
-    field: [],
 };
 
 var materials_phong = {
@@ -70,45 +69,36 @@ var materials_phong = {
         displacementMap: terrain_texture,
         displacementScale: 300,
         map: field_texture,
+        specular: 0x222222
     }),
+    skydome: new THREE.MeshPhongMaterial({
+        map: skydome_texture,
+        side: THREE.DoubleSide
+    })
 }
 
 var materials_gouraud = {
     black: new THREE.MeshLambertMaterial({ color: black }),
-    red: new THREE.MeshLambertMaterial({ color: red, specular: 0x999999 }),
+    red: new THREE.MeshLambertMaterial({ color: red }),
     yellow: new THREE.MeshLambertMaterial({ color: yellow }),
     gray: new THREE.MeshLambertMaterial({ color: gray }),
-    blue: new THREE.MeshLambertMaterial({ color: blue, specular: 0x999999 }),
+    blue: new THREE.MeshLambertMaterial({ color: blue }),
     lightgray: new THREE.MeshLambertMaterial({ color: lightgray }),
     orange: new THREE.MeshLambertMaterial({ color: orange }),
     brown: new THREE.MeshLambertMaterial({ color: brown }),
     white: new THREE.MeshLambertMaterial({ color: white }),
-    field: new THREE.MeshLambertMaterial({
-        bumpMap: terrain_bump,
-        bumpScale: 40,
-        displacementMap: terrain_texture,
-        displacementScale: 300,
-        map: field_texture,
-    }),
 }
 
 var materials_cartoon = {
     black: new THREE.MeshToonMaterial({ color: black }),
-    red: new THREE.MeshToonMaterial({ color: red, specular: 0x999999 }),
+    red: new THREE.MeshToonMaterial({ color: red }),
     yellow: new THREE.MeshToonMaterial({ color: yellow }),
     gray: new THREE.MeshToonMaterial({ color: gray }),
-    blue: new THREE.MeshToonMaterial({ color: blue, specular: 0x999999 }),
+    blue: new THREE.MeshToonMaterial({ color: blue }),
     lightgray: new THREE.MeshToonMaterial({ color: lightgray }),
     orange: new THREE.MeshToonMaterial({ color: orange}),
     brown: new THREE.MeshToonMaterial({ color: brown}),
     white: new THREE.MeshToonMaterial({ color: white}),
-    field: new THREE.MeshToonMaterial({
-        bumpMap: terrain_bump,
-        bumpScale: 40,
-        displacementMap: terrain_texture,
-        displacementScale: 300,
-        map: field_texture,
-    }),
 }
 
 var materials_basic = {
@@ -121,9 +111,6 @@ var materials_basic = {
     orange: new THREE.MeshBasicMaterial({ color: orange}),
     brown: new THREE.MeshBasicMaterial({ color: brown}),
     white: new THREE.MeshBasicMaterial({ color: white}),
-    field: new THREE.MeshBasicMaterial({
-        map: field_texture,
-    }),
 }
 
 const controller = {
@@ -168,7 +155,7 @@ function createScene(){
 //////////////////////
 function createCamera() {
     'use strict';
-    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 10000);
+    camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 1, 10000);
     camera.position.set(0, 150, 500);
     camera.lookAt(0,0,0);
     scene.add(camera);
@@ -496,25 +483,19 @@ function createHouse(x, y, z) {
 }
 
 function createField(x, y, z) {
-    color = "field";
     geometry = new THREE.PlaneGeometry( 1300, 1300, 300, 300 );
     geometry.rotateX(-Math.PI/2);
 
-    material = materials_phong[color];
+    material = materials_phong["field"];
     mesh = new THREE.Mesh(geometry, material);
     mesh.position.set(x, y, z);
     scene.add(mesh);
-    meshes[color].push(mesh);
 }
 
 function createSkydome(x, y, z) {
-    material = new THREE.MeshBasicMaterial({
-        map: skydome_texture,
-        side: THREE.DoubleSide
-    });
-
     geometry = new THREE.SphereGeometry( 540, 100, 100 );
     
+    material = materials_phong["skydome"];
     mesh = new THREE.Mesh(geometry, material);
     mesh.position.set(x, y, z);
 
