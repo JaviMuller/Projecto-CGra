@@ -179,7 +179,7 @@ function createCamera() {
 /////////////////////
 function createAmbientLight() {
     'use strict';
-    var ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
+    var ambientLight = new THREE.AmbientLight(0xffffff, 0.05);
     scene.add(ambientLight);
 }
 
@@ -201,7 +201,7 @@ function createMoon(x,y,z) {
     mesh.position.set(0,0,0);
     meshes[color].push(mesh);
 
-    var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.2 );
+    var directionalLight = new THREE.DirectionalLight( 0xfeff84, 0.3 );
     directionalLight.name = "MoonLight";
     directionalLight.step = 0;
     moon.add(directionalLight);
