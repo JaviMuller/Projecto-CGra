@@ -219,7 +219,7 @@ function createOvni(x,y,z) {
     geometry = new THREE.SphereGeometry(1);
     geometry.scale(48,12,48);
     mesh = new THREE.Mesh(geometry, materials_phong[color]); 
-    mesh.position.set(x, y, z);
+    mesh.position.set(0, 0, 0);
     meshes[color].push(mesh);
     ovni.add(mesh);
     
@@ -228,22 +228,22 @@ function createOvni(x,y,z) {
     geometry = new THREE.SphereGeometry(1);
     geometry.scale(24,24,24);
     mesh = new THREE.Mesh(geometry, materials_phong[color]);
-    mesh.position.set(x, y + 12, z);
+    mesh.position.set(0, 12, 0);
     meshes[color].push(mesh);
     ovni.add(mesh);
 
     // Main Light
     geometry = new THREE.CylinderGeometry(12, 12, 3);
     mesh = new THREE.Mesh(geometry, materials_phong.gray);
-    mesh.position.set(x, y - 12, z);
+    mesh.position.set(0, -12, 0);
     ovni.add(mesh);
 
     var spotLight = new THREE.SpotLight( 0xffffff, 2, 0, Math.PI/8, 0.5, 0.5);
     spotLight.name="spotlight";
     spotLight.step = 0;
-    spotLight.position.set( x, y-14, z );
+    spotLight.position.set( 0, -14, 0 );
     var spotTarget = new THREE.Object3D();
-    spotTarget.position.set(x,y-26,z);
+    spotTarget.position.set(0,-26,0);
     spotLight.target = spotTarget;
 
     ovni.add(spotTarget);
@@ -257,9 +257,11 @@ function createOvni(x,y,z) {
 
     for(let i = 0; i < pointLights; i++) {
         dist.setFromSpherical(sphericalCoord);
-        addSmallLight(ovni, x+dist.x, y+dist.y, z+dist.z);
+        addSmallLight(ovni, dist.x, dist.y, dist.z);
         sphericalCoord.theta += Math.PI*2/pointLights;
     }
+
+    ovni.position.set(x,y,z);
 
     scene.add(ovni);
 }
@@ -586,11 +588,22 @@ function toggle_texture(texture) {
 
 function move_ovni() {
     vector.normalize();
-    scene.getObjectByName("Ovni").translateOnAxis(vector,5);
+    scene.getObjectByName("Ovni").position.x += vector.x * 5;
+    scene.getObjectByName("Ovni").position.y += vector.y * 5;
+    scene.getObjectByName("Ovni").position.z += vector.z * 5;
 }
 
 function update(){
     'use strict';
+
+    var pos = new THREE.Vector3();
+    pos.x = scene.getObjectByName("Ovni").position.x
+    pos.y = scene.getObjectByName("Ovni").position.y
+    pos.z = scene.getObjectByName("Ovni").position.z
+    scene.getObjectByName("Ovni").position.set(0,0,0);
+    scene.getObjectByName("Ovni").rotateY(0.02);
+    scene.getObjectByName("Ovni").position.set(pos.x,pos.y,pos.z);
+
     vector = new THREE.Vector3(0,0,0);
     Object.keys(controller).forEach((e) => { if (controller[e].pressed) { controller[e].function(); }})
     if(scene.getObjectByName("MoonLight").step > 0) {
@@ -655,7 +668,7 @@ function init() {
     createCamera();
     createAmbientLight();
 
-    createOvni(-100,170,200);
+    createOvni(100,200,200);
     createTree(80,100,320);
     createTree(90,80,120);
     createHouse(-20,65,320);
