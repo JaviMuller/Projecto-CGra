@@ -40,6 +40,7 @@ var lightgray = 0xbbbbbb;
 var orange = 0xed7117;
 var white = 0xffffff;
 var brown = 0x5e2c04;
+var darkgreen = 0x007200;
 
 var meshes = {
     black: [],
@@ -51,6 +52,7 @@ var meshes = {
     orange: [],
     brown: [],
     white: [],
+    darkgreen: [],
 };
 
 var materials_phong = {
@@ -63,6 +65,7 @@ var materials_phong = {
     orange: new THREE.MeshPhongMaterial({ color: orange}),
     brown: new THREE.MeshPhongMaterial({ color: brown}),
     white: new THREE.MeshPhongMaterial({ color: white}),
+    darkgreen: new THREE.MeshPhongMaterial({ color: darkgreen}),
     field: new THREE.MeshPhongMaterial({
         bumpMap: terrain_bump,
         bumpScale: 40,
@@ -87,6 +90,7 @@ var materials_gouraud = {
     orange: new THREE.MeshLambertMaterial({ color: orange }),
     brown: new THREE.MeshLambertMaterial({ color: brown }),
     white: new THREE.MeshLambertMaterial({ color: white }),
+    darkgreen: new THREE.MeshLambertMaterial({ color: darkgreen}),
 }
 
 var materials_cartoon = {
@@ -99,6 +103,7 @@ var materials_cartoon = {
     orange: new THREE.MeshToonMaterial({ color: orange}),
     brown: new THREE.MeshToonMaterial({ color: brown}),
     white: new THREE.MeshToonMaterial({ color: white}),
+    darkgreen: new THREE.MeshToonMaterial({ color: darkgreen}),
 }
 
 var materials_basic = {
@@ -111,6 +116,7 @@ var materials_basic = {
     orange: new THREE.MeshBasicMaterial({ color: orange}),
     brown: new THREE.MeshBasicMaterial({ color: brown}),
     white: new THREE.MeshBasicMaterial({ color: white}),
+    darkgreen: new THREE.MeshBasicMaterial({ color: darkgreen}),
 }
 
 const controller = {
@@ -206,6 +212,7 @@ function createOvni(x,y,z) {
 
     var ovni = new THREE.Object3D();
     ovni.name = "Ovni";
+    ovni.step = 0;
 
     // Base
     color = "red";
@@ -231,8 +238,9 @@ function createOvni(x,y,z) {
     mesh.position.set(x, y - 12, z);
     ovni.add(mesh);
 
-    var spotLight = new THREE.SpotLight( 0xffffff, 0.5, 0, Math.PI/8, 0.5, 0.5);
+    var spotLight = new THREE.SpotLight( 0xffffff, 2, 0, Math.PI/8, 0.5, 0.5);
     spotLight.name="spotlight";
+    spotLight.step = 0;
     spotLight.position.set( x, y-14, z );
     var spotTarget = new THREE.Object3D();
     spotTarget.position.set(x,y-26,z);
@@ -244,6 +252,8 @@ function createOvni(x,y,z) {
     var dist = new THREE.Vector3(36, -8, 0);
     var sphericalCoord = new THREE.Spherical();
     sphericalCoord.setFromVector3(dist);
+
+    ovni.smallLights = [];
 
     for(let i = 0; i < pointLights; i++) {
         dist.setFromSpherical(sphericalCoord);
@@ -266,17 +276,14 @@ function addSmallLight(obj,x,y,z) {
     var pointLight = new THREE.PointLight( 0xffffff, 0.4, 1000, 25);
     pointLight.position.set(x, y-1, z);
     obj.add(pointLight);
-
-
+    obj.smallLights.push(pointLight);
 }
 
-
-
-function createTree (name, x, y, z) {
+function createTree (x, y, z) {
     'use strict';
 
     var tree = new THREE.Object3D();
-    tree.name = name;
+    tree.name = "Tree";
 
     // Treetop
     color = "darkgreen";
@@ -285,7 +292,7 @@ function createTree (name, x, y, z) {
     geometry.scale(5,3,6);
     mesh = new THREE.Mesh(geometry, materials_phong[color]);
     mesh.rotateZ(deg_to_rad(-30));
-    mesh.position.set(x + 2.5, y + 2, z - 1);
+    mesh.position.set(2.5, 2, -1);
     tree.add(mesh);
     meshes[color].push(mesh);
 
@@ -293,7 +300,7 @@ function createTree (name, x, y, z) {
     geometry.scale(4,3,5);
     mesh = new THREE.Mesh(geometry, materials_phong[color]);
     mesh.rotateZ(deg_to_rad(30));
-    mesh.position.set(x - 3, y + 2, z + 1);
+    mesh.position.set(-3, 2, 1);
     tree.add(mesh);
     meshes[color].push(mesh);
 
@@ -302,7 +309,7 @@ function createTree (name, x, y, z) {
     geometry = new THREE.CylinderGeometry(1,1,6);
     mesh = new THREE.Mesh(geometry, materials_phong[color]);
     mesh.rotateZ(deg_to_rad(-30));
-    mesh.position.set(x, y - 2, z - 1);
+    mesh.position.set(0, -2, -1);
     tree.add(mesh);
     meshes[color].push(mesh);
 
@@ -310,10 +317,13 @@ function createTree (name, x, y, z) {
     mesh = new THREE.Mesh(geometry, materials_phong[color]);
     mesh.rotateZ(deg_to_rad(30));
     mesh.rotateX(deg_to_rad(30));
-    mesh.position.set(x - 1, y - 1, z);
+    mesh.position.set(-1, -1, 0);
     tree.add(mesh);
     meshes[color].push(mesh);
 
+    tree.position.set(x,y,z);
+
+    tree.scale.set(5,5,5);
     scene.add(tree);
 }
 
@@ -586,6 +596,12 @@ function update(){
     if(scene.getObjectByName("MoonLight").step > 0) {
         scene.getObjectByName("MoonLight").step -= 1;
     }
+    if(scene.getObjectByName("spotlight").step > 0) {
+        scene.getObjectByName("spotlight").step -= 1;
+    }
+    if(scene.getObjectByName("Ovni").step > 0) {
+        scene.getObjectByName("Ovni").step -= 1;
+    }
     move_ovni();
 }
 
@@ -595,6 +611,24 @@ function toggle_moon_light() {
         scene.getObjectByName("MoonLight").visible = !scene.getObjectByName("MoonLight").visible;
     }
 }
+
+function toggle_spot_light() {
+    if(scene.getObjectByName("spotlight").step == 0) {
+        scene.getObjectByName("spotlight").step = 20;
+        scene.getObjectByName("spotlight").visible = !scene.getObjectByName("spotlight").visible;
+    }
+}
+
+function toggle_point_light() {
+    if(scene.getObjectByName("Ovni").step == 0) {
+        scene.getObjectByName("Ovni").step = 20;
+        scene.getObjectByName("Ovni").smallLights.forEach((l) => {
+            l.visible = !l.visible;
+        })
+    }
+}
+
+
 /////////////
 /* DISPLAY */
 /////////////
@@ -622,7 +656,8 @@ function init() {
     createAmbientLight();
 
     createOvni(-100,170,200);
-    //createTrees();
+    createTree(80,100,320);
+    createTree(90,80,120);
     createHouse(-20,65,320);
     createField(0, 0, 0);
     createSkydome(0, 0, 0);
