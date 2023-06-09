@@ -58,7 +58,7 @@ var meshes = {
 var materials_phong = {
     black: new THREE.MeshPhongMaterial({ color: black }),
     red: new THREE.MeshPhongMaterial({ color: red, specular: 0x999999 }),
-    yellow: new THREE.MeshPhongMaterial({ color: yellow }),
+    yellow: new THREE.MeshPhongMaterial({ color: yellow, emissive: yellow }),
     gray: new THREE.MeshPhongMaterial({ color: gray }),
     blue: new THREE.MeshPhongMaterial({ color: blue, specular: 0x999999 }),
     lightgray: new THREE.MeshPhongMaterial({ color: lightgray }),
@@ -83,7 +83,7 @@ var materials_phong = {
 var materials_gouraud = {
     black: new THREE.MeshLambertMaterial({ color: black }),
     red: new THREE.MeshLambertMaterial({ color: red }),
-    yellow: new THREE.MeshLambertMaterial({ color: yellow }),
+    yellow: new THREE.MeshLambertMaterial({ color: yellow, emissive: yellow }),
     gray: new THREE.MeshLambertMaterial({ color: gray }),
     blue: new THREE.MeshLambertMaterial({ color: blue }),
     lightgray: new THREE.MeshLambertMaterial({ color: lightgray }),
@@ -96,7 +96,7 @@ var materials_gouraud = {
 var materials_cartoon = {
     black: new THREE.MeshToonMaterial({ color: black }),
     red: new THREE.MeshToonMaterial({ color: red }),
-    yellow: new THREE.MeshToonMaterial({ color: yellow }),
+    yellow: new THREE.MeshToonMaterial({ color: yellow, emissive: yellow }),
     gray: new THREE.MeshToonMaterial({ color: gray }),
     blue: new THREE.MeshToonMaterial({ color: blue }),
     lightgray: new THREE.MeshToonMaterial({ color: lightgray }),
@@ -239,7 +239,7 @@ function createOvni(x,y,z) {
     mesh.position.set(0, -12, 0);
     ovni.add(mesh);
 
-    var spotLight = new THREE.SpotLight( 0xffffff, 1, 0, Math.PI/8, 0.5, 0.5);
+    var spotLight = new THREE.SpotLight( 0xffffff, 1, 0, Math.PI/8, 0.3, 0.3);
     spotLight.name="spotlight";
     spotLight.step = 0;
     spotLight.position.set( 0, -14, 0 );
@@ -278,7 +278,7 @@ function addSmallLight(obj,x,y,z) {
     mesh.position.set(x, y, z);
     obj.add(mesh);
 
-    var pointLight = new THREE.PointLight( 0xffffff, 0.6, 300, 25);
+    var pointLight = new THREE.PointLight( 0xffffff, 0.35, 300, 25);
     pointLight.position.set(x, y-1, z);
     obj.add(pointLight);
     obj.smallLights.push(pointLight);
