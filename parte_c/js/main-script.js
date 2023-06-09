@@ -162,7 +162,7 @@ function createScene(){
 function createCamera() {
     'use strict';
     camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 1, 10000);
-    camera.position.set(0, 150, 500);
+    camera.position.set(0, 20, 50);
     camera.lookAt(0,0,0);
     scene.add(camera);
 }
@@ -200,6 +200,7 @@ function createMoon(x,y,z) {
     moon.add(directionalLight);
 
     moon.add(mesh);
+    moon.scale.set(1/6, 1/6, 1/6);
     moon.position.set(x,y,z);
     directionalLight.lookAt(0,0,0);
 
@@ -260,6 +261,8 @@ function createOvni(x,y,z) {
         addSmallLight(ovni, dist.x, dist.y, dist.z);
         sphericalCoord.theta += Math.PI*2/pointLights;
     }
+
+    ovni.scale.set(1/6,1/6,1/6);
 
     ovni.position.set(x,y,z);
 
@@ -325,7 +328,7 @@ function createTree (x, y, z) {
 
     tree.position.set(x,y,z);
 
-    tree.scale.set(5,5,5);
+    tree.scale.set(5/6,5/6,5/6);
     scene.add(tree);
 }
 
@@ -496,7 +499,7 @@ function createHouse(x, y, z) {
     house.position.set(x,y,z);
 
     house.rotateY(12*Math.PI/13);
-    house.scale.set(9,9,9);
+    house.scale.set(9/6,9/6,9/6);
 
     scene.add(house);
 }
@@ -513,7 +516,7 @@ function createField(x, y, z) {
 }
 
 function createSkydome(x, y, z) {
-    geometry = new THREE.SphereGeometry( 540, 100, 100 );
+    geometry = new THREE.SphereGeometry( 540/6, 100, 100 );
     
     material = materials_phong["skydome"];
     mesh = new THREE.Mesh(geometry, material);
@@ -668,13 +671,14 @@ function init() {
     createCamera();
     createAmbientLight();
 
-    createOvni(100,200,200);
-    createTree(80,100,320);
-    createTree(90,80,120);
-    createHouse(-20,65,320);
-    createField(0, 0, 0);
-    createSkydome(0, 0, 0);
-    createMoon(350, 300,-350);
+    createOvni(10,20,20);
+    createTree(90/6, -7, -100/6);
+    createTree(90/6,5,120/6);
+    createTree(-40,0,10);
+    createHouse(0, -2, 10);
+    createField(0, -69, 0);
+    createSkydome(0, -20, 0);
+    createMoon(100, 75,-400);
 }
 
 /////////////////////
@@ -695,6 +699,7 @@ function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
 
+    renderer.xr.getCamera().position.copy( camera.position);
     renderer.setSize( window.innerWidth, window.innerHeight );
 }
 
