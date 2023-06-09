@@ -189,12 +189,12 @@ function createMoon(x,y,z) {
 
     color = "yellow";
     geometry = new THREE.SphereGeometry(1);
-    geometry.scale(50,50,50);
+    geometry.scale(30,30,30);
     mesh = new THREE.Mesh(geometry, materials_phong[color]);
     mesh.position.set(0,0,0);
     meshes[color].push(mesh);
 
-    var directionalLight = new THREE.DirectionalLight( 0xfeff84, 0.1 );
+    var directionalLight = new THREE.DirectionalLight( 0xfefcd7, 0.1 );
     directionalLight.name = "MoonLight";
     directionalLight.step = 0;
     moon.add(directionalLight);
@@ -239,7 +239,7 @@ function createOvni(x,y,z) {
     mesh.position.set(0, -12, 0);
     ovni.add(mesh);
 
-    var spotLight = new THREE.SpotLight( 0xffffff, 2, 0, Math.PI/8, 0.5, 0.5);
+    var spotLight = new THREE.SpotLight( 0xffffff, 1, 0, Math.PI/8, 0.5, 0.5);
     spotLight.name="spotlight";
     spotLight.step = 0;
     spotLight.position.set( 0, -14, 0 );
@@ -278,13 +278,13 @@ function addSmallLight(obj,x,y,z) {
     mesh.position.set(x, y, z);
     obj.add(mesh);
 
-    var pointLight = new THREE.PointLight( 0xffffff, 0.4, 1000, 25);
+    var pointLight = new THREE.PointLight( 0xffffff, 0.6, 300, 25);
     pointLight.position.set(x, y-1, z);
     obj.add(pointLight);
     obj.smallLights.push(pointLight);
 }
 
-function createTree (x, y, z) {
+function createTree (x, y, z, radx, rady, radz) {
     'use strict';
 
     var tree = new THREE.Object3D();
@@ -326,13 +326,14 @@ function createTree (x, y, z) {
     tree.add(mesh);
     meshes[color].push(mesh);
 
-    tree.position.set(x,y,z);
-
     tree.scale.set(5/6,5/6,5/6);
+    tree.rotateX(radx);
+    tree.rotateY(rady);
+    tree.rotateZ(radz);
+    tree.position.set(x,y,z);
     scene.add(tree);
 }
 
-//fixme arranjar os pontos bem
 function createHouse(x, y, z) {
 
     var house = new THREE.Object3D();
@@ -672,13 +673,13 @@ function init() {
     createAmbientLight();
 
     createOvni(10,20,20);
-    createTree(90/6, -7, -100/6);
-    createTree(90/6,5,120/6);
-    createTree(-40,0,10);
+    createTree(90/6, -7, -100/6,0,0,0);
+    createTree(90/6,4,20,0,1.5,0);
+    createTree(-40,-1,10,0.1,1,0);
     createHouse(0, -2, 10);
     createField(0, -69, 0);
     createSkydome(0, -20, 0);
-    createMoon(100, 75,-400);
+    createMoon(50, 30,-50);
 }
 
 /////////////////////
