@@ -284,7 +284,7 @@ function addSmallLight(obj,x,y,z) {
     obj.smallLights.push(pointLight);
 }
 
-function createTree (x, y, z, radx, rady, radz) {
+function createTree (x, y, z, radx, rady, radz, scale, height) {
     'use strict';
 
     var tree = new THREE.Object3D();
@@ -297,7 +297,7 @@ function createTree (x, y, z, radx, rady, radz) {
     geometry.scale(5,3,6);
     mesh = new THREE.Mesh(geometry, materials_phong[color]);
     mesh.rotateZ(deg_to_rad(-30));
-    mesh.position.set(2.5, 2, -1);
+    mesh.position.set(2.5, 2+height-6, -1);
     tree.add(mesh);
     meshes[color].push(mesh);
 
@@ -305,13 +305,13 @@ function createTree (x, y, z, radx, rady, radz) {
     geometry.scale(4,3,5);
     mesh = new THREE.Mesh(geometry, materials_phong[color]);
     mesh.rotateZ(deg_to_rad(30));
-    mesh.position.set(-3, 2, 1);
+    mesh.position.set(-3, 2+height-6, 1);
     tree.add(mesh);
     meshes[color].push(mesh);
 
     // Trunk
     color = "brown";
-    geometry = new THREE.CylinderGeometry(1,1,6);
+    geometry = new THREE.CylinderGeometry(1,1,height);
     mesh = new THREE.Mesh(geometry, materials_phong[color]);
     mesh.rotateZ(deg_to_rad(-30));
     mesh.position.set(0, -2, -1);
@@ -322,11 +322,11 @@ function createTree (x, y, z, radx, rady, radz) {
     mesh = new THREE.Mesh(geometry, materials_phong[color]);
     mesh.rotateZ(deg_to_rad(30));
     mesh.rotateX(deg_to_rad(30));
-    mesh.position.set(-1, -1, 0);
+    mesh.position.set(-1+height/2-3, -1+height-6, 0);
     tree.add(mesh);
     meshes[color].push(mesh);
 
-    tree.scale.set(5/6,5/6,5/6);
+    tree.scale.set(scale,scale,scale);
     tree.rotateX(radx);
     tree.rotateY(rady);
     tree.rotateZ(radz);
@@ -496,7 +496,6 @@ function createHouse(x, y, z) {
     meshes[color].push(mesh);
 
 
-
     house.position.set(x,y,z);
 
     house.rotateY(12*Math.PI/13);
@@ -592,9 +591,9 @@ function toggle_texture(texture) {
 
 function move_ovni() {
     vector.normalize();
-    scene.getObjectByName("Ovni").position.x += vector.x * 5;
-    scene.getObjectByName("Ovni").position.y += vector.y * 5;
-    scene.getObjectByName("Ovni").position.z += vector.z * 5;
+    scene.getObjectByName("Ovni").position.x += vector.x;
+    scene.getObjectByName("Ovni").position.y += vector.y;
+    scene.getObjectByName("Ovni").position.z += vector.z;
 }
 
 function update(){
@@ -673,9 +672,9 @@ function init() {
     createAmbientLight();
 
     createOvni(10,20,20);
-    createTree(90/6, -7, -100/6,0,0,0);
-    createTree(90/6,4,20,0,1.5,0);
-    createTree(-40,-1,10,0.1,1,0);
+    createTree(90/6, -7, -100/6,0,1,0,5/6,9);
+    createTree(90/6,4,20,0,1.5,0,5/6,8);
+    createTree(-40,-1,10,0.1,1,0,5/6,10);
     createHouse(0, -2, 10);
     createField(0, -69, 0);
     createSkydome(0, -20, 0);
@@ -689,7 +688,7 @@ function animate() {
     'use strict';
     renderer.setAnimationLoop( () => {
         update();
-        render(); 
+        render();
     });
 }
 
